@@ -1,0 +1,10 @@
+name: MinecraftBlockShuffle
+version: 1.0
+main: me.matistan05.minecraftblockshuffle.Main
+api-version: 1.16
+authors: [ Matistan05 ]
+description: If you don't stand on a given block on time, you lose!
+commands:
+  blockshuffle:
+    description: This command sets up the whole blockshuffle game!
+    usage: /<command>
