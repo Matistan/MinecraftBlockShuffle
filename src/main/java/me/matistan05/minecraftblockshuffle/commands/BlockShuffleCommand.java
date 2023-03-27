@@ -188,7 +188,12 @@ public class BlockShuffleCommand implements CommandExecutor {
                         }
                         if(alivePlayers() == 1) {
                             if(startPlayers != 1) {
-                                playersMessage(ChatColor.GOLD + players.get(0) + " won!");
+                                for(int i = 0; i < stood.size(); i++) {
+                                    if(stood.get(i)) {
+                                        playersMessage(ChatColor.GOLD + players.get(i) + " won!");
+                                        break;
+                                    }
+                                }
                                 reset();
                             }
                         } else if(alivePlayers() == 0) {
