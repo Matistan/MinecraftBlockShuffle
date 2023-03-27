@@ -1,6 +1,6 @@
-# Set to true to set the time to day when the game starts.
+# Set to true to set the time to day automatically when the game starts.
 timeSetDayOnStart: true
-# Set to true to set the weather to clear when the game starts.
+# Set to true to set the weather to clear automatically when the game starts.
 weatherClearOnStart: true
 # Set to true to enable nether blocks.
 enableNetherBlocks: false
@@ -8,5 +8,5 @@ enableNetherBlocks: false
 takeAwayOps: true
 # Set to true to clear players inventories when the game starts.
 clearInventories: true
-# Set the time to stand on a given block in seconds (60sec - 3600sec)
+# Set the time for a round (60sec - 3600sec)
 time: 300
