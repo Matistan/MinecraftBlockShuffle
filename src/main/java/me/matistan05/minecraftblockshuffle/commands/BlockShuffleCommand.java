@@ -298,7 +298,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 material.name().equals("ANCIENT_DEBRIS") || material.name().equals("CRYING_OBSIDIAN") || material.name().equals("FROSTED_ICE") ||
                 material.name().equals("BEACON") || material.name().equals("CONDUIT") ||material.name().contains("FROG") || material.name().contains("EXPOSED") ||
                 material.name().contains("WEATHERED") || material.name().contains("OXIDIZED") || material.name().equals("HANGING_ROOTS") ||
-                material.name().contains("SKULL") || material.name().contains("SCULK") || material.name().contains("CORAL") ||
+                material.name().contains("SKULL") || material.name().contains("SCULK") || material.name().contains("CORAL") || material.name().contains("CAKE") ||
                 (material.name().contains("PLAYER") && material.name().contains("HEAD")) ||
                 (material.name().contains("ZOMBIE") && material.name().contains("HEAD")) ||
                 (material.name().contains("CREEPER") && material.name().contains("HEAD")) ||
