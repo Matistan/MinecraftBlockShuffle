@@ -6,7 +6,7 @@
 
     <groupId>me.matistan05</groupId>
     <artifactId>MinecraftBlockShuffle</artifactId>
-    <version>1.0.1</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>MinecraftBlockShuffle</name>

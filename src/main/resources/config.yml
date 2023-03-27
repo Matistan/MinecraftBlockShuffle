@@ -8,5 +8,18 @@ enableNetherBlocks: false
 takeAwayOps: true
 # Set to true to clear players inventories when the game starts.
 clearInventories: true
-# Set the time for a round (60sec - 3600sec)
+# Set the time for a round (60sec - 3600sec).
 time: 300
+# Set to true to make it so that every player has the same block to stand on.
+sameBlockForEveryone: false
+# Set to true to enable PvP during the match.
+pvpEnabled: false
+
+# *********************
+# * GAME MODE OPTIONS *
+# *********************
+
+# Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points.
+gameMode: 0
+# Set the number of point required to win (only if you're playing game mode 1).
+pointsToWin: 5

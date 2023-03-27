@@ -1,5 +1,6 @@
 package me.matistan05.minecraftblockshuffle.commands;
 
+import me.matistan05.minecraftblockshuffle.BlockShufflePlayer;
 import me.matistan05.minecraftblockshuffle.Main;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -18,12 +19,14 @@ public class BlockShuffleCommand implements CommandExecutor {
     public static List<String> players = new LinkedList<>();
     public static List<Boolean> ops = new LinkedList<>();
     public static List<Boolean> stood = new LinkedList<>();
+    public static List<Boolean> points = new LinkedList<>();
+//    public static List<BlockShufflePlayer> players = new LinkedList<>();
     int startPlayers;
     public static Material[] blocks;
     Material[] materials = Material.values();
     public static boolean inGame = false;
     public static BukkitTask game;
-    int time;
+    int time, round;
     static int seconds = 0;
 
     public BlockShuffleCommand(Main main) {
@@ -114,9 +117,13 @@ public class BlockShuffleCommand implements CommandExecutor {
             if(main.getConfig().getBoolean("weatherClearOnStart")) {
                 p.getWorld().setStorm(false);
             }
+            round = 1;
             startPlayers = players.size();
             blocks = new Material[players.size()];
             playersMessage(ChatColor.AQUA + "START!");
+//            if(main.getConfig().getInt("gameMode") == 1) {
+//                playersMessage(ChatColor.AQUA + "First player to score " + main.getConfig().getInt("pointsToWin") + " wins!");
+//            }
             for(int i = 0; i < players.size(); i++) {
                 Player player = Bukkit.getPlayerExact(players.get(i));
                 if(player == null) {
@@ -133,8 +140,16 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.setHealth(20);
                 player.setFoodLevel(20);
                 stood.add(false);
-                blocks[i] = randomBlock();
-                player.sendMessage(ChatColor.DARK_GREEN + "You must stand on " + better(blocks[i].name()));
+                if(main.getConfig().getBoolean("sameBlockForEveryone")) {
+                    if(i > 0) {
+                        blocks[i] = blocks[i - 1];
+                    } else {
+                        blocks[i] = randomBlock();
+                    }
+                } else {
+                    blocks[i] = randomBlock();
+                }
+                player.sendMessage(ChatColor.DARK_GREEN + "Round "+ round + ": You must stand on " + better(blocks[i].name()));
             }
             inGame = true;
             time = main.getConfig().getInt("time");
@@ -221,13 +236,22 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 i -= 1;
                             }
                         }
+                        round += 1;
                         for(int i = 0; i < players.size(); i++) {
                             if(stood.get(i)) {
                                 stood.set(i, false);
-                                blocks[i] = randomBlock();
+                                if(main.getConfig().getBoolean("sameBlockForEveryone")) {
+                                    if(i > 0) {
+                                        blocks[i] = blocks[i - 1];
+                                    } else {
+                                        blocks[i] = randomBlock();
+                                    }
+                                } else {
+                                    blocks[i] = randomBlock();
+                                }
                                 Player target = Bukkit.getPlayerExact(players.get(i));
                                 if(target != null) {
-                                    target.sendMessage(ChatColor.DARK_GREEN + "You must stand on " + better(blocks[i].name()));
+                                    target.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + better(blocks[i].name()));
                                 }
                             }
                         }
