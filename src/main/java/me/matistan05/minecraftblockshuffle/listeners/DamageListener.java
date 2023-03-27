@@ -19,7 +19,7 @@ public class DamageListener implements Listener {
     public void DamageEvent(EntityDamageByEntityEvent e) {
         if(e.getEntity() instanceof Player && e.getDamager() instanceof Player) {
             Player p = (Player) e.getEntity();
-            if(inGame && players.contains(p.getName()) && !main.getConfig().getBoolean("pvpEnabled")) {
+            if(inGame && players.stream().anyMatch(obj -> obj.getName().equals(p.getName())) && !main.getConfig().getBoolean("pvpEnabled")) {
                 e.setCancelled(true);
             }
         }

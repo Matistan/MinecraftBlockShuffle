@@ -1,5 +1,6 @@
 package me.matistan05.minecraftblockshuffle.listeners;
 
+import me.matistan05.minecraftblockshuffle.BlockShufflePlayer;
 import me.matistan05.minecraftblockshuffle.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,10 +16,13 @@ public class MoveListener implements Listener {
     }
     @EventHandler
     public void moveEvent(PlayerMoveEvent e) {
-        if(inGame && players.contains(e.getPlayer().getName())) {
-            if(e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(blocks[players.indexOf(e.getPlayer().getName())]) && !stood.get(players.indexOf(e.getPlayer().getName()))) {
-                playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
-                stood.set(players.indexOf(e.getPlayer().getName()), true);
+        if(inGame) {
+            for (BlockShufflePlayer player : players) {
+                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(player.getBlock()) && player.getName().equals(e.getPlayer().getName())) {
+                    playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
+                    player.setStood(true);
+                    break;
+                }
             }
         }
     }

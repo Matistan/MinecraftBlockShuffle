@@ -1,36 +1,44 @@
 package me.matistan05.minecraftblockshuffle;
 
+import org.bukkit.Material;
+
 public class BlockShufflePlayer {
     final private String name;
     private boolean op;
     private boolean stood;
     private int points;
-
-    BlockShufflePlayer(String name, boolean op, boolean stood, int points) {
+    private Material block;
+    public BlockShufflePlayer(String name) {
         this.name = name;
-        this.op = op;
-        this.stood = stood;
-        this.points = points;
     }
-    boolean isOp() {
+    public boolean isPlayerOp() {
         return op;
     }
-    void setOp(boolean op) {
+     public void setPlayerOp(boolean op) {
         this.op = op;
     }
-    boolean stood() {
+    public boolean stood() {
         return stood;
     }
-    void setStood(boolean stood) {
+    public void setStood(boolean stood) {
         this.stood = stood;
     }
-    int getPoints() {
+    public int getPoints() {
         return points;
     }
-    void setPoints(int points) {
+    public void setPoints(int points) {
         this.points = points;
     }
-    void addPoint() {
+    public void addPoint() {
         points += 1;
+    }
+    public String getName() {
+        return name;
+    }
+    public Material getBlock() {
+        return block;
+    }
+    public void setBlock(Material material) {
+        block = material;
     }
 }
