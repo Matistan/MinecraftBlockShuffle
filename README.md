@@ -20,8 +20,13 @@ This plugin runs on a Minecraft version 1.16+.
 ## What is Block Shuffle?
 
 Minecraft Block Shuffle is a very popular game due to a youtuber Dream. Every player has a task to stand on a randomized block on time.
-When everyone finds their block, next round starts. This goes on until 1 or 0 players are left.
-You can play it either solo or with your friends.
+When everyone finds their block, next round starts. You can play it either solo or with your friends.
+
+## Features
+
+Choose between 2 game modes:
+- Play until 1 or 0 players are left in the game
+- Play until a player has a certain amount of points
 
 ## How to use it
 
