@@ -238,7 +238,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                             }
                             if(winningPlayers() == 1) {
                                 for(BlockShufflePlayer player : players) {
-                                    if(player.getPoints() == main.getConfig().getInt("pointsToWin")) {
+                                    if(player.getPoints() == requiredPoints) {
                                         playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + player.getName() + " won! Their score: " + requiredPoints + " point" +
                                                 (requiredPoints == 1 ? "" : "s") + " in " + (round + 1) + " round" + (round == 0 ? "" : "s") + ChatColor.MAGIC + "IR");
                                     }
