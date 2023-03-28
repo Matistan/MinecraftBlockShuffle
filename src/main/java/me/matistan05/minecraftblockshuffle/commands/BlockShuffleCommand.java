@@ -320,7 +320,7 @@ public class BlockShuffleCommand implements CommandExecutor {
     private int winningPlayers() {
         int a = 0;
         for (BlockShufflePlayer player : players) {
-            if (player.getPoints() == main.getConfig().getInt("pointsToWin")) {
+            if (player.getPoints() == requiredPoints) {
                 a++;
             }
         }
