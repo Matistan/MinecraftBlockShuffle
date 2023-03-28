@@ -119,9 +119,10 @@ public class BlockShuffleCommand implements CommandExecutor {
             round = 1;
             startPlayers = players.size();
             playersMessage(ChatColor.AQUA + "START!");
-//            if(main.getConfig().getInt("gameMode") == 1) {
-//                playersMessage(ChatColor.AQUA + "First player to score " + main.getConfig().getInt("pointsToWin") + " wins!");
-//            }
+            if(main.getConfig().getInt("gameMode") == 1) {
+                    playersMessage(ChatColor.AQUA + "First player to score " + main.getConfig().getInt("pointsToWin") +
+                            " point" + (main.getConfig().getInt("pointsToWin") <= 1 ? "" : "s") + ", wins!");
+            }
             for(int i = 0; i < players.size(); i++) {
                 Player player = Bukkit.getPlayerExact(players.get(i).getName());
                 if(player == null) {
@@ -137,6 +138,8 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setHealth(20);
                 player.setFoodLevel(20);
+                players.get(i).setStood(false);
+                players.get(i).setPoints(0);
                 if(main.getConfig().getBoolean("sameBlockForEveryone")) {
                     if(i > 0) {
                         players.get(i).setBlock(players.get(i - 1).getBlock());
@@ -198,37 +201,63 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 playersMessage(ChatColor.DARK_RED + player.getName() + " didn't stand on their block!");
                             }
                         }
-                        if(goodPlayers() == 1) {
-                            if(startPlayers != 1) {
-                                for (BlockShufflePlayer player : players) {
-                                    if (player.stood()) {
-                                        playersMessage(ChatColor.GOLD + player.getName() + " won!");
-                                        break;
+                        if(main.getConfig().getInt("gameMode") == 0) {
+                            if(goodPlayers() == 1) {
+                                if(startPlayers != 1) {
+                                    for (BlockShufflePlayer player : players) {
+                                        if (player.stood()) {
+                                            playersMessage(ChatColor.GOLD + player.getName() + " won!");
+                                            break;
+                                        }
+                                    }
+                                    reset();
+                                }
+                            } else if(goodPlayers() == 0) {
+                                if(startPlayers == 1) {
+                                    playersMessage(ChatColor.DARK_RED + "You lost!");
+                                } else {
+                                    playersMessage(ChatColor.GOLD + "Draw! Winners:");
+                                    for (BlockShufflePlayer player : players) {
+                                        playersMessage(ChatColor.GOLD + player.getName());
                                     }
                                 }
                                 reset();
                             }
-                        } else if(goodPlayers() == 0) {
-                            if(startPlayers == 1) {
-                                playersMessage(ChatColor.DARK_RED + "You lost!");
-                            } else {
-                                playersMessage(ChatColor.GOLD + "Draw! Winners:");
-                                for (BlockShufflePlayer player : players) {
-                                    playersMessage(ChatColor.AQUA + player.getName());
+                            for(int i = 0; i < players.size(); i++) {
+                                if(!players.get(i).stood()) {
+                                    if(main.getConfig().getBoolean("takeAwayOps")) {
+                                        Player target = Bukkit.getPlayerExact(players.get(i).getName());
+                                        if(target != null) {
+                                            target.setOp(players.get(i).isPlayerOp());
+                                        }
+                                    }
+                                    players.remove(i);
+                                    i -= 1;
                                 }
                             }
-                            reset();
-                        }
-                        for(int i = 0; i < players.size(); i++) {
-                            if(!players.get(i).stood()) {
-                                if(main.getConfig().getBoolean("takeAwayOps")) {
-                                    Player target = Bukkit.getPlayerExact(players.get(i).getName());
-                                    if(target != null) {
-                                        target.setOp(players.get(i).isPlayerOp());
+                        } else {
+                            playersMessage(ChatColor.DARK_GREEN + "Scoreboard:");
+                            for(BlockShufflePlayer player : players) {
+                                playersMessage(ChatColor.DARK_GREEN + player.getName() + " " + player.getPoints());
+                            }
+                            if(winningPlayers() == 1) {
+                                for(BlockShufflePlayer player : players) {
+                                    if(player.getPoints() == main.getConfig().getInt("pointsToWin")) {
+                                        playersMessage(ChatColor.GOLD + player.getName() + " won! Their score: " + player.getPoints() + " point" +
+                                                (player.getPoints() == 1 ? "" : "s") + " in " + (round + 1) + " round" + (round == 0 ? "" : "s"));
                                     }
                                 }
-                                players.remove(i);
-                                i -= 1;
+                                reset();
+                            } else if(winningPlayers() > 1) {
+                                playersMessage(ChatColor.GOLD + "Draw! Winners:");
+                                for(BlockShufflePlayer player : players) {
+                                    if(player.getPoints() == main.getConfig().getInt("pointsToWin")) {
+                                        playersMessage(ChatColor.GOLD + player.getName());
+                                    }
+                                }
+                                playersMessage(ChatColor.GOLD + "Their score: " + main.getConfig().getInt("pointsToWin") + " point" +
+                                        (main.getConfig().getInt("pointsToWin") <= 1 ? "" : "s") + " in " + (round + 1) + " round" + (round == 0 ? "" : "s"));
+                                reset();
                             }
                         }
                         round += 1;
@@ -287,6 +316,15 @@ public class BlockShuffleCommand implements CommandExecutor {
         int a = 0;
         for (BlockShufflePlayer player : players) {
             if (player.stood()) {
+                a++;
+            }
+        }
+        return a;
+    }
+    private int winningPlayers() {
+        int a = 0;
+        for (BlockShufflePlayer player : players) {
+            if (player.getPoints() == main.getConfig().getInt("pointsToWin")) {
                 a++;
             }
         }

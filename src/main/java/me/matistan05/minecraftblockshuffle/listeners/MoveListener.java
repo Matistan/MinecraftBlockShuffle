@@ -11,7 +11,9 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import static me.matistan05.minecraftblockshuffle.commands.BlockShuffleCommand.*;
 
 public class MoveListener implements Listener {
+    private final Main main;
     public MoveListener(Main main) {
+        this.main = main;
         Bukkit.getPluginManager().registerEvents(this, main);
     }
     @EventHandler
@@ -21,6 +23,9 @@ public class MoveListener implements Listener {
                 if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(player.getBlock()) && player.getName().equals(e.getPlayer().getName()) && !player.stood()) {
                     playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
                     player.setStood(true);
+                    if(main.getConfig().getInt("gameMode") == 1) {
+                        player.addPoint();
+                    }
                     break;
                 }
             }
