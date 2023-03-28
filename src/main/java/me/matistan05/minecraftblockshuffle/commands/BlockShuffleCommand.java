@@ -86,6 +86,10 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "This player does not exist or is offline");
                 return true;
             }
+            if(inGame) {
+                p.sendMessage(ChatColor.RED + "The game has already started!");
+                return true;
+            }
             if (players.stream().anyMatch(obj -> obj.getName().equals(target.getName()))) {
                 players.removeIf(obj -> obj.getName().equals(target.getName()));
                 p.sendMessage(ChatColor.AQUA + "Successfully removed " + target.getName() + " from the game");

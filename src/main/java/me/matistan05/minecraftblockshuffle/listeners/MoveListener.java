@@ -18,7 +18,7 @@ public class MoveListener implements Listener {
     public void moveEvent(PlayerMoveEvent e) {
         if(inGame) {
             for (BlockShufflePlayer player : players) {
-                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(player.getBlock()) && player.getName().equals(e.getPlayer().getName())) {
+                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(player.getBlock()) && player.getName().equals(e.getPlayer().getName()) && !player.stood()) {
                     playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
                     player.setStood(true);
                     break;
