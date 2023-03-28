@@ -240,7 +240,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 for(BlockShufflePlayer player : players) {
                                     if(player.getPoints() == requiredPoints) {
                                         playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + player.getName() + " won! Their score: " + requiredPoints + " point" +
-                                                (requiredPoints == 1 ? "" : "s") + " in " + (round + 1) + " round" + (round == 0 ? "" : "s") + ChatColor.MAGIC + "IR");
+                                                (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
                                     }
                                 }
                                 reset();
@@ -252,7 +252,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                                     }
                                 }
                                 playersMessage(ChatColor.GOLD + "Their score: " + requiredPoints + " point" +
-                                        (requiredPoints <= 1 ? "" : "s") + " in " + (round + 1) + " round" + (round == 0 ? "" : "s"));
+                                        (requiredPoints <= 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s"));
                                 reset();
                             }
                         }
