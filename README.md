@@ -67,4 +67,9 @@ Key|Description|Type|recommended
 gameMode | Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points. | int | It's up to you!
 pointsToWin | Set the number of point required to win (only if you're playing game mode 1). | int | 5
 
+### Bugs & Issues
+
+> **Having issues?** Feel free to report them on the [Issues tab](https://github.com/Matistan/MinecraftBlockShuffle/issues). I'll be glad to hear your opinion about the plugin as well as extra features you would like me to add!
+
+
 Made by [Matistan](https://github.com/Matistan)
