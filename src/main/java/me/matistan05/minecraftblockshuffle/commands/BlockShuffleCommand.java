@@ -236,9 +236,9 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 }
                             }
                         } else {
-                            playersMessage(ChatColor.DARK_GREEN + "Scoreboard:");
+                            playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
                             for(BlockShufflePlayer player : players) {
-                                playersMessage(ChatColor.DARK_GREEN + player.getName() + " " + player.getPoints());
+                                playersMessage(ChatColor.DARK_AQUA + player.getName() + " " + player.getPoints());
                             }
                             if(winningPlayers() == 1) {
                                 for(BlockShufflePlayer player : players) {
