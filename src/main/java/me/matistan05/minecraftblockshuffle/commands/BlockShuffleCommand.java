@@ -350,7 +350,9 @@ public class BlockShuffleCommand implements CommandExecutor {
                         material.name().contains("WARPED") || material.name().contains("TWISTING") ||
                         material.name().contains("WEEPING") || material.name().equals("SHROOMLIGHT") || material.name().contains("BLACKSTONE") ||
                         material.name().contains("QUARTZ") || material.name().contains("SOUL") || material.name().contains("BASALT") ||
-                        material.name().equals("GLOWSTONE") || material.name().equals("REDSTONE_LAMP"))));
+                        material.name().equals("GLOWSTONE") || material.name().equals("REDSTONE_LAMP"))) ||
+                (this.main.getServer().getClass().getPackage().getName().substring(this.main.getServer().getClass().getPackage().getName().length() - 7).equals("1_17_R1") &&
+                        material.name().equals("CAVE_VINES")));
         return material;
     }
 
