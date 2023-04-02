@@ -2,8 +2,8 @@
 
 ---
 
-Made with [Spigot](https://www.spigotmc.org/)/[Bukkit](https://dev.bukkit.org/)<br>
-Inspired by [Dream](https://www.youtube.com/@dream)<br>
+View on [Spigot](https://www.spigotmc.org/resources/block-shuffle.109009/) • 
+Inspired by [Dream](https://www.youtube.com/@dream) • 
 Download [here](https://github.com/Matistan/MinecraftBlockShuffle/releases)
 
 ---
