@@ -15,17 +15,18 @@ import java.util.List;
 import java.util.Random;
 
 public class BlockShuffleCommand implements CommandExecutor {
-    private final Main main;
+    private static Main main;
     public static List<BlockShufflePlayer> players = new LinkedList<>();
     int startPlayers;
     Material[] materials = Material.values();
     public static boolean inGame = false;
     public static BukkitTask game;
-    int time, round, requiredPoints;
+    int time;
+    public static int requiredPoints, round;
     static int seconds = 0;
 
     public BlockShuffleCommand(Main main) {
-        this.main = main;
+        BlockShuffleCommand.main = main;
     }
 
     @Override
@@ -236,15 +237,16 @@ public class BlockShuffleCommand implements CommandExecutor {
                             for(BlockShufflePlayer player : players) {
                                 playersMessage(ChatColor.DARK_AQUA + player.getName() + " " + player.getPoints());
                             }
-                            if(winningPlayers() == 1) {
+                            if(playersWith(requiredPoints) == 1) {
                                 for(BlockShufflePlayer player : players) {
                                     if(player.getPoints() == requiredPoints) {
                                         playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + player.getName() + " won! Their score: " + requiredPoints + " point" +
                                                 (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
+                                        break;
                                     }
                                 }
                                 reset();
-                            } else if(winningPlayers() > 1) {
+                            } else if(playersWith(requiredPoints) > 1) {
                                 playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
                                 for(BlockShufflePlayer player : players) {
                                     if(player.getPoints() == main.getConfig().getInt("pointsToWin")) {
@@ -317,10 +319,10 @@ public class BlockShuffleCommand implements CommandExecutor {
         }
         return a;
     }
-    private int winningPlayers() {
+    public static int playersWith(int b) {
         int a = 0;
         for (BlockShufflePlayer player : players) {
-            if (player.getPoints() == requiredPoints) {
+            if (player.getPoints() == b) {
                 a++;
             }
         }
@@ -351,8 +353,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                         material.name().contains("WEEPING") || material.name().equals("SHROOMLIGHT") || material.name().contains("BLACKSTONE") ||
                         material.name().contains("QUARTZ") || material.name().contains("SOUL") || material.name().contains("BASALT") ||
                         material.name().equals("GLOWSTONE") || material.name().equals("REDSTONE_LAMP"))) ||
-                (this.main.getServer().getClass().getPackage().getName().substring(this.main.getServer().getClass().getPackage().getName().length() - 7).equals("1_17_R1") &&
-                        material.name().equals("CAVE_VINES")));
+                (main.getServer().getClass().getPackage().getName().endsWith("1_17_R1") && material.name().equals("CAVE_VINES")));
         return material;
     }
 
@@ -364,7 +365,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
         }
     }
-    public void reset() {
+    public static void reset() {
         if(inGame) {
             inGame = false;
             game.cancel();
