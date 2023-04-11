@@ -188,9 +188,11 @@ public class BlockShuffleCommand implements CommandExecutor {
                                     score2 = objective.getScore(ChatColor.BLUE + "Points: " + v.getPoints() + "/" + requiredPoints);
                                 }
                                 Score score3 = objective.getScore(ChatColor.DARK_GREEN + "Block: " + better(v.getBlock().name()));
-                                timer.setScore(3);
-                                score3.setScore(2);
-                                score2.setScore(1);
+                                Score score = objective.getScore(ChatColor.AQUA + "Round: " + round);
+                                timer.setScore(4);
+                                score3.setScore(3);
+                                score2.setScore(2);
+                                score.setScore(1);
                                 player.setScoreboard(scoreboard);
                             }
                         }
