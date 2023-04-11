@@ -144,6 +144,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setHealth(20);
                 player.setFoodLevel(20);
+                player.setSaturation(20);
                 players.get(i).setStood(false);
                 players.get(i).setPoints(0);
                 if(main.getConfig().getBoolean("sameBlockForEveryone")) {
@@ -166,35 +167,11 @@ public class BlockShuffleCommand implements CommandExecutor {
                     if(goodPlayers() == players.size()) {
                         seconds = time;
                     }
-                    if((seconds + 10) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "10 seconds remaining!");
-                    }
-                    if((seconds + 9) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "9 seconds remaining!");
-                    }
-                    if((seconds + 8) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "8 seconds remaining!");
-                    }
-                    if((seconds + 7) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "7 seconds remaining!");
-                    }
-                    if((seconds + 6) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "6 seconds remaining!");
-                    }
-                    if((seconds + 5) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "5 seconds remaining!");
-                    }
-                    if((seconds + 4) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "4 seconds remaining!");
-                    }
-                    if((seconds + 3) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "3 seconds remaining!");
-                    }
-                    if((seconds + 2) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "2 seconds remaining!");
-                    }
-                    if((seconds + 1) % time == 0) {
-                        playersMessage(ChatColor.LIGHT_PURPLE + "1 second remaining!");
+                    for(int i = 1; i <= 10; i++) {
+                        if((seconds + i) % time == 0) {
+                            playersMessage(ChatColor.LIGHT_PURPLE + "" + i + " second" + (i == 1 ? "" : "s") + " remaining!");
+                            break;
+                        }
                     }
                     if(main.getConfig().getBoolean("scoreboard")) {
                         for(BlockShufflePlayer v : players) {
