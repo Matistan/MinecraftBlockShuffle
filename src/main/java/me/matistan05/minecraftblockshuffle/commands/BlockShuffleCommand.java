@@ -9,6 +9,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,9 @@ public class BlockShuffleCommand implements CommandExecutor {
     private static Main main;
     public static List<BlockShufflePlayer> players = new LinkedList<>();
     int startPlayers;
+    ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
+    Scoreboard scoreboard;
+    static Objective objective;
     Material[] materials = Material.values();
     public static boolean inGame = false;
     public static BukkitTask game;
@@ -192,6 +196,28 @@ public class BlockShuffleCommand implements CommandExecutor {
                     if((seconds + 1) % time == 0) {
                         playersMessage(ChatColor.LIGHT_PURPLE + "1 second remaining!");
                     }
+                    if(main.getConfig().getBoolean("scoreboard")) {
+                        for(BlockShufflePlayer v : players) {
+                            Player player = Bukkit.getPlayerExact(v.getName());
+                            if(player != null) {
+                                scoreboard = scoreboardManager.getNewScoreboard();
+                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + "Block Shuffle");
+                                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                                Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + (time - (seconds % time)));
+                                Score score2;
+                                if(main.getConfig().getInt("gameMode") == 0) {
+                                    score2 = objective.getScore(ChatColor.BLUE + "Players left: " + players.size());
+                                } else {
+                                    score2 = objective.getScore(ChatColor.BLUE + "Points: " + v.getPoints() + "/" + requiredPoints);
+                                }
+                                Score score3 = objective.getScore(ChatColor.DARK_GREEN + "Block: " + better(v.getBlock().name()));
+                                timer.setScore(3);
+                                score3.setScore(2);
+                                score2.setScore(1);
+                                player.setScoreboard(scoreboard);
+                            }
+                        }
+                    }
                     if(seconds % time == 0 && seconds != 0) {
                         for (BlockShufflePlayer player : players) {
                             if (!player.stood()) {
@@ -341,7 +367,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 material.name().equals("JIGSAW") || material.name().contains("STRUCTURE") || material.name().contains("CHORUS") ||
                 material.name().equals("SPAWNER") || material.name().equals("LIGHT") || material.name().contains("INFESTED") ||
                 material.name().equals("ANCIENT_DEBRIS") || material.name().equals("CRYING_OBSIDIAN") || material.name().equals("FROSTED_ICE") ||
-                material.name().equals("BEACON") || material.name().equals("CONDUIT") ||material.name().contains("FROG") || material.name().contains("EXPOSED") ||
+                material.name().equals("BEACON") || material.name().equals("CONDUIT") || material.name().contains("FROG") || material.name().contains("EXPOSED") ||
                 material.name().contains("WEATHERED") || material.name().contains("OXIDIZED") || material.name().equals("HANGING_ROOTS") ||
                 material.name().contains("SKULL") || material.name().contains("SCULK") || material.name().contains("CORAL") || material.name().contains("CAKE") ||
                 (material.name().contains("PLAYER") && material.name().contains("HEAD")) ||
@@ -369,6 +395,9 @@ public class BlockShuffleCommand implements CommandExecutor {
         if(inGame) {
             inGame = false;
             game.cancel();
+            if(main.getConfig().getBoolean("scoreboard")) {
+                objective.setDisplaySlot(null);
+            }
             if(main.getConfig().getBoolean("takeAwayOps")) {
                 for (BlockShufflePlayer player : players) {
                     Player target = Bukkit.getPlayerExact(player.getName());
