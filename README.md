@@ -60,6 +60,7 @@ clearInventories | Set to true to clear players inventories when the game starts
 time | Set the time for a round in seconds (60sec - 3600sec). | int | 300
 sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG
 pvpEnabled | Set to true to enable PvP during the match. | boolean | false
+scoreboard | Set to true to show scoreboard with the timer. | boolean | true
 
 ### Game Mode Options
 
