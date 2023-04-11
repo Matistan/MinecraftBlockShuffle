@@ -14,6 +14,8 @@ time: 300
 sameBlockForEveryone: false
 # Set to true to enable PvP during the match.
 pvpEnabled: false
+# Set to true to show scoreboard with the timer.
+scoreboard: true
 
 # *********************
 # * GAME MODE OPTIONS *
