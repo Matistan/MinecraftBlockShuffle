@@ -1,6 +1,5 @@
 package me.matistan05.minecraftblockshuffle.listeners;
 
-import me.matistan05.minecraftblockshuffle.BlockShufflePlayer;
 import me.matistan05.minecraftblockshuffle.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -19,19 +18,19 @@ public class MoveListener implements Listener {
     @EventHandler
     public void moveEvent(PlayerMoveEvent e) {
         if(inGame) {
-            for (BlockShufflePlayer player : players) {
-                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(player.getBlock()) && player.getName().equals(e.getPlayer().getName()) && !player.stood()) {
+            for (int i = 0; i < players.size(); i++) {
+                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(blocks.get(i)) && players.get(i).equals(e.getPlayer().getName()) && !finished.get(i)) {
                     playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
-                    player.setStood(true);
+                    finished.set(i, true);
                     if(main.getConfig().getInt("gameMode") == 1) {
-                        player.addPoint();
-                        if(player.getPoints() == requiredPoints) {
+                        points.set(i, points.get(i) + 1);
+                        if(points.get(i) == requiredPoints) {
                             if(playersWith(requiredPoints - 1) == 0) {
                                 playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
-                                for(BlockShufflePlayer pl : players) {
-                                    playersMessage(ChatColor.DARK_AQUA + pl.getName() + " " + player.getPoints());
+                                for(int j = 0; j < players.size(); j++) {
+                                    playersMessage(ChatColor.DARK_AQUA + players.get(j) + " " + points.get(j));
                                 }
-                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + player.getName() + " won! Their score: " + requiredPoints + " point" +
+                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(i) + " won! Their score: " + requiredPoints + " point" +
                                         (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
                                 reset();
                             }
