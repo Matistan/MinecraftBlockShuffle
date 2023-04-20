@@ -37,8 +37,8 @@ Choose between 2 game modes:
 
 ## Commands
 
-- `/blockshuffle add <player name> ` - adds a player
-- `/blockshuffle remove <player name>` - removes a player
+- `/blockshuffle add <player> <player> ... ` - adds players
+- `/blockshuffle remove <player> <player> ... ` - removes players
 - `/blockshuffle start` - starts a game
 - `/blockshuffle reset` - resets a game
 - `/blockshuffle list` - shows a list of players in a block shuffle game
