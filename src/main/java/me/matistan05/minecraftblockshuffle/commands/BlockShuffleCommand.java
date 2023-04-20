@@ -352,30 +352,12 @@ public class BlockShuffleCommand implements CommandExecutor {
         for(String g : disabled.getStringList("disabledBlocks")) {
             materials.removeIf(obj -> obj.name().equals(g));
         }
+        if(!main.getConfig().getBoolean("enableNetherBlocks")) {
+            materials.removeIf(obj -> (obj.name().contains("NETHER") || obj.name().contains("CRIMSON") || obj.name().contains("WARPED") || obj.name().contains("TWISTING") ||
+                    obj.name().contains("WEEPING") || obj.name().equals("SHROOMLIGHT") || obj.name().contains("BLACKSTONE") || obj.name().contains("QUARTZ") ||
+                    obj.name().contains("SOUL") || obj.name().contains("BASALT") || obj.name().equals("GLOWSTONE") || obj.name().equals("REDSTONE_LAMP")));
+        }
         material = materials.get(random.nextInt(materials.size()));
-//        do {
-//            Random random = new Random();
-//            material = materials[random.nextInt(materials.length)];
-//        } while(!material.isBlock() || material.name().contains("SHULKER") || material.name().contains("COMMAND") || material.name().equals("DIAMOND_BLOCK") ||
-//                material.name().equals("EMERALD_BLOCK") || material.name().contains("END") || material.name().contains("GOLD_BLOCK") ||
-//                material.name().equals("LAPIS_BLOCK") || material.name().equals("NETHERITE_BLOCK") || material.name().equals("BARRIER") ||
-//                material.name().contains("PURPUR") || material.name().equals("RESPAWN_ANCHOR") || material.name().equals("LODESTONE") ||
-//                material.name().equals("JIGSAW") || material.name().contains("STRUCTURE") || material.name().contains("CHORUS") ||
-//                material.name().equals("SPAWNER") || material.name().equals("LIGHT") || material.name().contains("INFESTED") ||
-//                material.name().equals("ANCIENT_DEBRIS") || material.name().equals("CRYING_OBSIDIAN") || material.name().equals("FROSTED_ICE") ||
-//                material.name().equals("BEACON") || material.name().equals("CONDUIT") || material.name().contains("FROG") || material.name().contains("EXPOSED") ||
-//                material.name().contains("WEATHERED") || material.name().contains("OXIDIZED") || material.name().equals("HANGING_ROOTS") ||
-//                material.name().contains("SKULL") || material.name().contains("SCULK") || material.name().contains("CORAL") || material.name().contains("CAKE") ||
-//                (material.name().contains("PLAYER") && material.name().contains("HEAD")) ||
-//                (material.name().contains("ZOMBIE") && material.name().contains("HEAD")) ||
-//                (material.name().contains("CREEPER") && material.name().contains("HEAD")) ||
-//                (material.name().contains("DRAGON") && material.name().contains("HEAD")) ||
-//                (!main.getConfig().getBoolean("enableNetherBlocks") && (material.name().contains("NETHER") || material.name().contains("CRIMSON") ||
-//                        material.name().contains("WARPED") || material.name().contains("TWISTING") ||
-//                        material.name().contains("WEEPING") || material.name().equals("SHROOMLIGHT") || material.name().contains("BLACKSTONE") ||
-//                        material.name().contains("QUARTZ") || material.name().contains("SOUL") || material.name().contains("BASALT") ||
-//                        material.name().equals("GLOWSTONE") || material.name().equals("REDSTONE_LAMP"))) ||
-//                (main.getServer().getClass().getPackage().getName().endsWith("1_17_R1") && material.name().equals("CAVE_VINES")));
         return material;
     }
 
