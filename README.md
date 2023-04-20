@@ -25,7 +25,7 @@ When everyone finds their block, next round starts. You can play it either solo 
 
 ## Features
 
-- Ban your own blocks! Go to the `plugins/MinecraftBlockShuffle/disabled.yml` and add blocks that you want to be banned (list of all the blocks is at `plugins/MinecraftBlockShuffle/blocks.yml`)
+- Ban your own blocks! Go to the `plugins/MinecraftBlockShuffle/disabled.yml` and add blocks that you want to ban (list of all the blocks is at `plugins/MinecraftBlockShuffle/blocks.yml`)
 - Choose between 2 game modes:
 - - Play until 1 or 0 players are left in the game
 - - Play until a player has a certain amount of points
