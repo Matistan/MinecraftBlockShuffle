@@ -9,10 +9,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
 
 public final class Main extends JavaPlugin {
-    public FileConfiguration customConfig;
+    public static FileConfiguration blocks, disabled;
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -20,13 +19,17 @@ public final class Main extends JavaPlugin {
         getCommand("blockshuffle").setTabCompleter(new BlockShuffleCompleter());
         new MoveListener(this);
         new DamageListener(this);
-        File file = new File(getDataFolder(), "customConfig.yml");
-        customConfig = YamlConfiguration.loadConfiguration(file);
-        customConfig.options().copyDefaults(true);
-        try {
-            customConfig.save(file);
-        } catch (IOException ignored) {
-
-        }
+        blocks = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "blocks.yml"));
+        blocks.options().copyDefaults(true);
+        saveResource("blocks.yml", false);
+        disabled = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "disabled.yml"));
+        disabled.options().copyDefaults(true);
+        saveResource("disabled.yml", false);
+        System.out.println("*********************************************************\n" +
+                "Thank you for using this plugin! <3\n" +
+                "Author: Matistan\n" +
+                "If you enjoy this plugin, please rate it on spigotmc.org:\n" +
+                "https://www.spigotmc.org/resources/block-shuffle.109009/\n" +
+                "*********************************************************");
     }
 }
