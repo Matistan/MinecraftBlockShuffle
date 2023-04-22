@@ -141,9 +141,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
             for(int i = 0; i < players.size(); i++) {
                 Player player = Bukkit.getPlayerExact(players.get(i));
-                if(player == null) {
-                    continue;
-                }
+                if(player == null) {continue;}
                 if(main.getConfig().getBoolean("takeAwayOps")) {
                     ops.add(player.isOp());
                     player.setOp(false);
@@ -188,7 +186,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                             Player player = Bukkit.getPlayerExact(players.get(i));
                             if(player != null) {
                                 scoreboard = scoreboardManager.getNewScoreboard();
-                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + "Block Shuffle");
+                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + "" + ChatColor.BOLD + "Block Shuffle");
                                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                                 Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + (time - (seconds % time)));
                                 Score score2;
@@ -216,12 +214,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                         if(main.getConfig().getInt("gameMode") == 0) {
                             if(goodPlayers() == 1) {
                                 if(startPlayers != 1) {
-                                    for (int i = 0; i < players.size(); i++) {
-                                        if (finished.get(i)) {
-                                            playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(i) + " won!" + ChatColor.MAGIC + "IR");
-                                            break;
-                                        }
-                                    }
+                                    playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(finished.indexOf(true)) + " won!" + ChatColor.MAGIC + "IR");
                                     reset();
                                 }
                             } else if(goodPlayers() == 0) {
@@ -238,10 +231,8 @@ public class BlockShuffleCommand implements CommandExecutor {
                             for(int i = 0; i < players.size(); i++) {
                                 if(!finished.get(i)) {
                                     if(main.getConfig().getBoolean("takeAwayOps")) {
-                                        Player target = Bukkit.getPlayerExact(players.get(i));
-                                        if(target != null) {
-                                            target.setOp(ops.get(i));
-                                        }
+                                        OfflinePlayer target = Bukkit.getOfflinePlayer(players.get(i));
+                                        target.setOp(ops.get(i));
                                     }
                                     players.remove(i);
                                     i -= 1;
@@ -253,13 +244,8 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 playersMessage(ChatColor.DARK_AQUA + players.get(i) + " " + points.get(i));
                             }
                             if(playersWith(requiredPoints) == 1) {
-                                for(int i = 0; i < players.size(); i++) {
-                                    if(points.get(i) == requiredPoints) {
-                                        playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(i) + " won! Their score: " + requiredPoints
-                                                + " point" + (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
-                                        break;
-                                    }
-                                }
+                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(points.indexOf(requiredPoints)) + " won! Their score: " + requiredPoints
+                                    + " point" + (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
                                 reset();
                             } else if(playersWith(requiredPoints) > 1) {
                                 playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
