@@ -12,7 +12,9 @@ Download [here](https://github.com/Matistan/MinecraftBlockShuffle/releases)
 
 ## Welcome to readme!
 
-Hi! I just want to thank you for your interest in this plugin. I put a lot of effort into this project and I would really love someone to use it!
+Hi!
+I just want to thank you for your interest in this plugin.
+I put a lot of effort into this project, and I would really love someone to use it!
 
 ### Minecraft version
 
@@ -21,14 +23,14 @@ This plugin runs on a Minecraft version 1.16+.
 ## What is Block Shuffle?
 
 Minecraft Block Shuffle is a very popular game due to a youtuber Dream. Every player has a task to stand on a randomized block on time.
-When everyone finds their block, next round starts. You can play it either solo or with your friends.
+When everyone finds their block, the next round starts. You can play it either solo or with your friends.
 
 ## Features
 
-- Ban your own blocks! Go to the `plugins/MinecraftBlockShuffle/disabled.yml` and add blocks that you want to ban (list of all the blocks is at `plugins/MinecraftBlockShuffle/blocks.yml`)
+- Ban your own blocks! Go to the `plugins/MinecraftBlockShuffle/disabled.yml` and add blocks that you want to ban (a list of all the blocks is at `plugins/MinecraftBlockShuffle/blocks.yml`)
 - Choose between 2 game modes:
 - - Play until 1 or 0 players are left in the game
-- - Play until a player has a certain amount of points
+- - Play until a player has a certain number of points
 
 ## How to use it
 
@@ -51,24 +53,24 @@ Edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following
 
 ### Main Options
 
-Key|Description|Type|recommended
---|--|--|--
-timeSetDayOnStart | Set to true to set the time to day automatically when the game starts. | boolean | true
-weatherClearOnStart | Set to true to set the weather to clear automatically when the game starts. | boolean | true
-enableNetherBlocks | Set to true to enable nether blocks. | boolean | false; if you choose true, then I recommend increasing time for a round
-takeAwayOps | Set to true to take away OPs for the duration of the game. | boolean | false; true, if you play with friends
-clearInventories | Set to true to clear players inventories when the game starts. | boolean | true
-time | Set the time for a round in seconds (60sec - 3600sec). | int | 300
-sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG
-pvpEnabled | Set to true to enable PvP during the match. | boolean | false
-scoreboard | Set to true to show scoreboard with the timer. | boolean | true
+| Key                  | Description                                                                 | Type    | recommended                                                             |
+|----------------------|-----------------------------------------------------------------------------|---------|-------------------------------------------------------------------------|
+| timeSetDayOnStart    | Set to true to set the time to day automatically when the game starts.      | boolean | true                                                                    |
+| weatherClearOnStart  | Set to true to set the weather to clear automatically when the game starts. | boolean | true                                                                    |
+| enableNetherBlocks   | Set to true to enable nether blocks.                                        | boolean | false; if you choose true, then I recommend increasing time for a round |
+| takeAwayOps          | Set to true to take away OPs for the duration of the game.                  | boolean | false; true, if you play with friends                                   |
+| clearInventories     | Set to true to clear players inventories when the game starts.              | boolean | true                                                                    |
+| time                 | Set the time for a round in seconds (60sec - 3600sec).                      | int     | 300                                                                     |
+| sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG                                                |
+| pvpEnabled           | Set to true to enable PvP during the match.                                 | boolean | false                                                                   |
+| scoreboard           | Set to true to show scoreboard with the timer.                              | boolean | true                                                                    |
 
 ### Game Mode Options
 
-Key|Description|Type|recommended
---|--|--|--
-gameMode | Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points. | int | It's up to you!
-pointsToWin | Set the number of point required to win (only if you're playing game mode 1). | int | 5
+| Key         | Description                                                                                                                    | Type | recommended     |
+|-------------|--------------------------------------------------------------------------------------------------------------------------------|------|-----------------|
+| gameMode    | Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points. | int  | It's up to you! |
+| pointsToWin | Set the number of point required to win (only if you're playing game mode 1).                                                  | int  | 5               |
 
 ### Bugs & Issues
 

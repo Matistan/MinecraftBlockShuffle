@@ -89,7 +89,7 @@ public class BlockShuffleCommand implements CommandExecutor {
         }
         if (args[0].equals("remove")) {
             if(args.length < 2) {
-                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /manhunt help");
+                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
             int count = 0;
