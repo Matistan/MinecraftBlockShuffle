@@ -23,6 +23,9 @@ sameBlockForEveryone: false
 pvpEnabled: false
 # Set to true to show scoreboard with the timer.
 scoreboard: true
+# Set to true to enable permission checks.
+## Note: This feature needs a permissions plugin (such as LuckPerms) to work.
+usePermissions: false
 
 # *********************
 # * GAME MODE OPTIONS *

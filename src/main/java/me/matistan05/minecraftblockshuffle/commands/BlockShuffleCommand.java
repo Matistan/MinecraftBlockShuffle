@@ -49,6 +49,10 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("help")) {
+            if(!p.hasPermission("blockshuffle.help") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if (args.length != 1) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
@@ -65,6 +69,10 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("add")) {
+            if(!p.hasPermission("blockshuffle.add") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if(args.length < 2) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
@@ -88,6 +96,10 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("remove")) {
+            if(!p.hasPermission("blockshuffle.remove") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if(args.length < 2) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
@@ -107,10 +119,15 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("start")) {
+            if(!p.hasPermission("blockshuffle.start") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if(args.length != 1) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
-            }if(players.size() == 0) {
+            }
+            if(players.isEmpty()) {
                 p.sendMessage(ChatColor.RED + "There are no players in the game!");
                 return true;
             }
@@ -177,7 +194,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                     }
                     for(int i = 1; i <= 10; i++) {
                         if((seconds + i) % time == 0) {
-                            playersMessage(ChatColor.LIGHT_PURPLE + "" + i + " second" + (i == 1 ? "" : "s") + " remaining!");
+                            playersMessage(ChatColor.LIGHT_PURPLE + String.valueOf(i) + " second" + (i == 1 ? "" : "s") + " remaining!");
                             break;
                         }
                     }
@@ -186,7 +203,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                             Player player = Bukkit.getPlayerExact(players.get(i));
                             if(player != null) {
                                 scoreboard = scoreboardManager.getNewScoreboard();
-                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + "" + ChatColor.BOLD + "Block Shuffle");
+                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + String.valueOf(ChatColor.BOLD) + "Block Shuffle");
                                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                                 Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + (time - (seconds % time)));
                                 Score score2;
@@ -214,14 +231,14 @@ public class BlockShuffleCommand implements CommandExecutor {
                         if(main.getConfig().getInt("gameMode") == 0) {
                             if(goodPlayers() == 1) {
                                 if(startPlayers != 1) {
-                                    playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(finished.indexOf(true)) + " won!" + ChatColor.MAGIC + "IR");
+                                    playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.get(finished.indexOf(true)) + " won!" + ChatColor.MAGIC + "IR");
                                     reset();
                                 }
                             } else if(goodPlayers() == 0) {
                                 if(startPlayers == 1) {
                                     playersMessage(ChatColor.DARK_RED + "You lost!");
                                 } else {
-                                    playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
+                                    playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
                                     for (String player : players) {
                                         playersMessage(ChatColor.GOLD + player);
                                     }
@@ -244,11 +261,11 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 playersMessage(ChatColor.DARK_AQUA + players.get(i) + " " + points.get(i));
                             }
                             if(playersWith(requiredPoints) == 1) {
-                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(points.indexOf(requiredPoints)) + " won! Their score: " + requiredPoints
+                                playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.get(points.indexOf(requiredPoints)) + " won! Their score: " + requiredPoints
                                     + " point" + (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
                                 reset();
                             } else if(playersWith(requiredPoints) > 1) {
-                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
+                                playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
                                 for(int i = 0; i < players.size(); i++) {
                                     if(points.get(i) == requiredPoints) {
                                         playersMessage(ChatColor.GOLD + players.get(i));
@@ -283,6 +300,10 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("reset")) {
+            if(!p.hasPermission("blockshuffle.reset") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if(args.length != 1) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
@@ -292,11 +313,15 @@ public class BlockShuffleCommand implements CommandExecutor {
             return true;
         }
         if (args[0].equals("list")) {
+            if(!p.hasPermission("blockshuffle.list") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
             if(args.length != 1) {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
-            if(players.size() == 0) {
+            if(players.isEmpty()) {
                 p.sendMessage(ChatColor.RED + "There is no player in your game!");
                 return true;
             }

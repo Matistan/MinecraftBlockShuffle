@@ -8,3 +8,13 @@ commands:
   blockshuffle:
     description: This command sets up the whole blockshuffle game!
     usage: /<command>
+permissions:
+  blockshuffle.blockshuffle:
+    description: Allows the player to use all /blockshuffle commands
+    children:
+      blockshuffle.add: true
+      blockshuffle.remove: true
+      blockshuffle.start: true
+      blockshuffle.reset: true
+      blockshuffle.list: true
+      blockshuffle.help: true

@@ -1,5 +1,5 @@
 # Below is the list of blocks that can be used in blockshuffle
-# These blocks are for 1.19+, but if you're playing on an older version, new blocks won't be used
+# This is a list of a 1.19 blocks, but if you're playing on an older version, blocks from newer versions won't be used, and if you're playing on a newer version than 1.19, new blocks from your version can still be used
 # Don't modify this file, this is only for you to know how blocks are named
 # If you want to disable certain blocks, go to disabled.yml and add them as they are written here
 # If you changed this file and want a default one again, simply delete it and reload the server. A new file should be generated

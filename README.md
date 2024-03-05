@@ -64,6 +64,7 @@ Edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following
 | sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG                                                |
 | pvpEnabled           | Set to true to enable PvP during the match.                                 | boolean | false                                                                   |
 | scoreboard           | Set to true to show scoreboard with the timer.                              | boolean | true                                                                    |
+| usePermissions       | Set to true to require users to have permission to use certain commands.    | boolean | false; true if you don't trust the people you're playing with           |
 
 ### Game Mode Options
 
@@ -71,6 +72,20 @@ Edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following
 |-------------|--------------------------------------------------------------------------------------------------------------------------------|------|-----------------|
 | gameMode    | Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points. | int  | It's up to you! |
 | pointsToWin | Set the number of point required to win (only if you're playing game mode 1).                                                  | int  | 5               |
+
+## Permissions
+
+If `usePermissions` is set to `true` in the `config.yml` file, players without ops will need the following permissions to use the commands:
+
+| Permission                | Description                                                  |
+|---------------------------|--------------------------------------------------------------|
+| blockshuffle.blockshuffle | Allows the player to use all `/blockshuffle` commands.       |
+| blockshuffle.add          | Allows the player to use the `/blockshuffle add` command.    |
+| blockshuffle.remove       | Allows the player to use the `/blockshuffle remove` command. |
+| blockshuffle.start        | Allows the player to use the `/blockshuffle start` command.  |
+| blockshuffle.reset        | Allows the player to use the `/blockshuffle reset` command.  |
+| blockshuffle.list         | Allows the player to use the `/blockshuffle list` command.   |
+| blockshuffle.help         | Allows the player to use the `/blockshuffle help` command.   |
 
 ### Bugs & Issues
 
