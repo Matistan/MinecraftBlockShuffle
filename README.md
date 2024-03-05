@@ -58,7 +58,7 @@ Edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following
 | timeSetDayOnStart    | Set to true to set the time to day automatically when the game starts.      | boolean | true                                                                    |
 | weatherClearOnStart  | Set to true to set the weather to clear automatically when the game starts. | boolean | true                                                                    |
 | enableNetherBlocks   | Set to true to enable nether blocks.                                        | boolean | false; if you choose true, then I recommend increasing time for a round |
-| takeAwayOps          | Set to true to take away OPs for the duration of the game.                  | boolean | false; true, if you play with friends                                   |
+| takeAwayOps          | Set to true to take away OPs for the duration of the game.                  | boolean | true                                                                    |
 | clearInventories     | Set to true to clear players inventories when the game starts.              | boolean | true                                                                    |
 | time                 | Set the time for a round in seconds (60sec - 3600sec).                      | int     | 300                                                                     |
 | sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG                                                |
