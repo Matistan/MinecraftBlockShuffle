@@ -87,14 +87,14 @@ public class BlockShuffleCompleter implements TabCompleter {
                 List<String> blocks = Main.blocks.getStringList("blocks");
                 blocks.removeIf(block -> Main.banned.getStringList("bannedBlocks").contains(block));
                 for(String block : blocks) {
-                    if(startsWith(block, args[1])) {
+                    if(block.contains(args[1].toUpperCase())) {
                         list.add(block.toLowerCase());
                     }
                 }
             } else if(args[0].equals("unban")) {
                 List<String> bannedBlocks = Main.banned.getStringList("bannedBlocks");
                 for(String block : bannedBlocks) {
-                    if(startsWith(block, args[1])) {
+                    if(block.contains(args[1].toUpperCase())) {
                         list.add(block.toLowerCase());
                     }
                 }
