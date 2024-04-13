@@ -17,6 +17,7 @@ import static me.matistan05.minecraftblockshuffle.commands.BlockShuffleCommand.i
 
 public final class Main extends JavaPlugin {
     public static FileConfiguration blocks, banned;
+    public static File bannedFile;
     @Override
     public void onEnable() {
         saveDefaultConfig();
@@ -24,9 +25,11 @@ public final class Main extends JavaPlugin {
         getCommand("blockshuffle").setTabCompleter(new BlockShuffleCompleter());
         new MoveListener(this);
         new DamageListener(this);
-        banned = YamlConfiguration.loadConfiguration(new File(getDataFolder(), "banned.yml"));
-        banned.options().copyDefaults(true);
         saveResource("banned.yml", false);
+        bannedFile = new File(getDataFolder(), "banned.yml");
+        banned = YamlConfiguration.loadConfiguration(bannedFile);
+        banned.options().copyDefaults(true);
+        saveResource("blocks.yml", false);
         File blocksFile = new File(getDataFolder(), "blocks.yml");
         FileWriter writer;
         try {
@@ -40,7 +43,7 @@ public final class Main extends JavaPlugin {
                     "\n" +
                     "blocks:\n");
             for(Material material : Material.values()) {
-                writer.write("  - " + material.name() + "\n");
+                if (material.isBlock()) writer.write("  - " + material.name() + "\n");
             }
             writer.close();
         } catch (Exception e) {
@@ -48,7 +51,6 @@ public final class Main extends JavaPlugin {
         }
         blocks = YamlConfiguration.loadConfiguration(blocksFile);
         blocks.options().copyDefaults(true);
-        saveResource("blocks.yml", false);
         System.out.println("*********************************************************\n" +
                 "Thank you for using this plugin! <3\n" +
                 "Author: Matistan\n" +

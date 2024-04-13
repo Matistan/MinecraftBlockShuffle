@@ -32,6 +32,16 @@ When everyone finds their block, the next round starts. You can play it either s
 - - Play until 1 or 0 players are left in the game
 - - Play until a player has a certain number of points
 
+## Important notes
+
+In some Minecraft versions, the plugin can give you a block from a higher version to stand on. For example, if you're playing on 1.20.4,
+the plugin can give you blocks from 1.21.
+
+### So what to do in this situation?
+
+The solution to this is play normally, but if the game gives you an impossible block (or just a really hard one),
+you can use the `/blockshuffle ban <block_name>` command to ban the block, and then type `/blockshuffle skip` to skip the round (no points will be added).
+
 ## How to use it
 
 - drag the .jar file from the [Release tab](https://github.com/Matistan/MinecraftBlockShuffle/releases) to your plugins folder on your server.

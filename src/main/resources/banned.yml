@@ -2,7 +2,7 @@
 # You can add more blocks to this list from the blocks.yml file to disable them (or delete ones that are here to enable them)
 # If you changed this file, and you want a default one again, simply delete it and reload the server. A new file should be generated
 
-banned:
+bannedBlocks:
   - SHULKER_BOX
   - WHITE_SHULKER_BOX
   - ORANGE_SHULKER_BOX
