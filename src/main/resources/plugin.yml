@@ -1,5 +1,5 @@
 name: MinecraftBlockShuffle
-version: 1.2.1
+version: '${project.version}'
 main: me.matistan05.minecraftblockshuffle.Main
 api-version: 1.16
 authors: [ Matistan05 ]

@@ -41,10 +41,15 @@ When everyone finds their block, the next round starts. You can play it either s
 ## Commands
 
 - `/blockshuffle add <player> <player> ... ` - adds players
+- `/blockshuffle add @a` - adds all players
 - `/blockshuffle remove <player> <player> ... ` - removes players
+- `/blockshuffle remove @a` - removes all players
 - `/blockshuffle start` - starts a game
 - `/blockshuffle reset` - resets a game
 - `/blockshuffle list` - shows a list of players in a block shuffle game
+- `/blockshuffle skip` - skips a round (i.e. when someone got an impossible block)
+- `/blockshuffle ban <block>` - bans a block
+- `/blockshuffle unban <block>` - unbans a block
 - `/blockshuffle help` - shows a list of block shuffle commands
 
 ## Configuration Options
@@ -85,6 +90,9 @@ If `usePermissions` is set to `true` in the `config.yml` file, players without o
 | blockshuffle.start        | Allows the player to use the `/blockshuffle start` command.  |
 | blockshuffle.reset        | Allows the player to use the `/blockshuffle reset` command.  |
 | blockshuffle.list         | Allows the player to use the `/blockshuffle list` command.   |
+| blockshuffle.skip         | Allows the player to use the `/blockshuffle skip` command.   |
+| blockshuffle.ban          | Allows the player to use the `/blockshuffle ban` command.    |
+| blockshuffle.unban        | Allows the player to use the `/blockshuffle unban` command.  |
 | blockshuffle.help         | Allows the player to use the `/blockshuffle help` command.   |
 
 ### Bugs & Issues

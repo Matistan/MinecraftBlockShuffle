@@ -37,6 +37,9 @@ public class BlockShuffleCompleter implements TabCompleter {
                 list.add("help");
             }
         } else if(args.length > 1 && (args[0].equals("add") || args[0].equals("remove"))) {
+            if (args.length > 2 && args[1].equals("@a")) {
+                return list;
+            }
             List<String> notForTab = new LinkedList<>();
             for(int i = 1; i < args.length - 1; i++) {
                 Player player = Bukkit.getPlayerExact(args[i]);
@@ -60,6 +63,9 @@ public class BlockShuffleCompleter implements TabCompleter {
             }
             for (String argument : notForTab) {
                 tabPlayers.remove(Bukkit.getPlayerExact(argument));
+            }
+            if (args.length == 2 && startsWith("@a", args[1])) {
+                list.add("@a");
             }
             for (Player player : tabPlayers) {
                 if (startsWith(player.getName(), args[args.length - 1])) {

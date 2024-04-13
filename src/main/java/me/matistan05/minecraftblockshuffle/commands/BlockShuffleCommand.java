@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import static me.matistan05.minecraftblockshuffle.Main.disabled;
+import static me.matistan05.minecraftblockshuffle.Main.banned;
 
 public class BlockShuffleCommand implements CommandExecutor {
     private static Main main;
@@ -39,11 +39,7 @@ public class BlockShuffleCommand implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!(sender instanceof Player)) {
-            return true;
-        }
-        Player p = (Player) sender;
+    public boolean onCommand(CommandSender p, Command command, String label, String[] args) {
         if(args.length == 0) {
             p.sendMessage(ChatColor.RED + "You must type an argument. For help, type: /blockshuffle help");
             return true;
@@ -64,6 +60,9 @@ public class BlockShuffleCommand implements CommandExecutor {
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle start " + ChatColor.AQUA + "- starts a blockshuffle game");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle reset " + ChatColor.AQUA + "- resets a blockshuffle game");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle list " + ChatColor.AQUA + "- shows a list of players in a blockshuffle game");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle skip " + ChatColor.AQUA + "- skips a round (i.e. when someone got an impossible block)");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle ban " + ChatColor.AQUA + "- bans a block from being chosen next time");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle ban " + ChatColor.AQUA + "- unbans a block");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle help " + ChatColor.AQUA + "- shows a list of blockshuffle commands");
             p.sendMessage(ChatColor.GREEN + "----------------------------------");
             return true;
@@ -82,6 +81,23 @@ public class BlockShuffleCommand implements CommandExecutor {
                 return true;
             }
             int count = 0;
+            if (args[1].equals("@a")) {
+                if (args.length != 2) {
+                    p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                    return true;
+                }
+                for(Player target : Bukkit.getOnlinePlayers()) {
+                    if(players.contains(target.getName())) continue;
+                    players.add(target.getName());
+                    count++;
+                }
+                if (count > 0) {
+                    p.sendMessage(ChatColor.AQUA + "Successfully added " + count + " player" + (count == 1 ? "" : "s") + " to the game!");
+                } else {
+                    p.sendMessage(ChatColor.RED + "No player was added!");
+                }
+                return true;
+            }
             for(int i = 1; i < args.length; i++) {
                 Player target = Bukkit.getPlayerExact(args[i]);
                 if(target == null || players.contains(target.getName())) {continue;}
@@ -105,10 +121,27 @@ public class BlockShuffleCommand implements CommandExecutor {
                 return true;
             }
             int count = 0;
+            if (args[1].equals("@a")) {
+                if (args.length != 2) {
+                    p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                    return true;
+                }
+                for(Player target : Bukkit.getOnlinePlayers()) {
+                    if(!players.contains(target.getName()) || (inGame && players.size() == 1)) continue;
+                    removePlayer(target.getName());
+                    count++;
+                }
+                if (count > 0) {
+                    p.sendMessage(ChatColor.AQUA + "Successfully removed " + count + " player" + (count == 1 ? "" : "s") + " from the game!");
+                } else {
+                    p.sendMessage(ChatColor.RED + "No player was removed!");
+                }
+                return true;
+            }
             for(int i = 1; i < args.length; i++) {
                 Player target = Bukkit.getPlayerExact(args[i]);
-                if(target == null || !players.contains(target.getName())) {continue;}
-                players.remove(target.getName());
+                if(target == null || !players.contains(target.getName()) || (inGame && players.size() == 1)) {continue;}
+                removePlayer(target.getName());
                 count++;
             }
             if(count > 0) {
@@ -143,10 +176,10 @@ public class BlockShuffleCommand implements CommandExecutor {
                 }
             }
             if(main.getConfig().getBoolean("timeSetDayOnStart")) {
-                p.getWorld().setTime(0);
+                p.getServer().getWorlds().get(0).setTime(0);
             }
             if(main.getConfig().getBoolean("weatherClearOnStart")) {
-                p.getWorld().setStorm(false);
+                p.getServer().getWorlds().get(0).setStorm(false);
             }
             round = 1;
             startPlayers = players.size();
@@ -155,6 +188,9 @@ public class BlockShuffleCommand implements CommandExecutor {
                 requiredPoints = (Math.max(main.getConfig().getInt("pointsToWin"), 1));
                 playersMessage(ChatColor.AQUA + "First player to score " + requiredPoints +
                             " point" + (requiredPoints == 1 ? "" : "s") + ", wins!");
+                for(String ignored : players) {
+                    points.add(0);
+                }
             }
             for(int i = 0; i < players.size(); i++) {
                 Player player = Bukkit.getPlayerExact(players.get(i));
@@ -171,7 +207,6 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.setFoodLevel(20);
                 player.setSaturation(20);
                 finished.add(false);
-                points.add(0);
                 if(main.getConfig().getBoolean("sameBlockForEveryone")) {
                     if(i > 0) {
                         blocks.add(blocks.get(0));
@@ -332,8 +367,94 @@ public class BlockShuffleCommand implements CommandExecutor {
             p.sendMessage(ChatColor.GREEN + "----------------------------------");
             return true;
         }
+        if (args[0].equals("skip")) {
+            if(!p.hasPermission("blockshuffle.skip") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
+            if(args.length != 1) {
+                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                return true;
+            }
+            if(!inGame) {
+                p.sendMessage(ChatColor.RED + "The game hasn't started yet!");
+                return true;
+            }
+            for(int i = 0; i < players.size(); i++) {
+                finished.set(i, true);
+            }
+            playersMessage(ChatColor.DARK_GREEN + " skipped the round!");
+            return true;
+        }
+        if (args[0].equals("ban")) {
+            String bannedBlock = args[1].toUpperCase();
+            if(!p.hasPermission("blockshuffle.ban") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
+            if(args.length != 2) {
+                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                return true;
+            }
+            p.sendMessage(bannedBlock);
+            System.out.println(Main.banned.getStringList("bannedblocks"));
+            if(Main.banned.getStringList("bannedblocks").contains(bannedBlock)) {
+                p.sendMessage(ChatColor.RED + "This block is already banned!");
+                return true;
+            }
+            if (!Main.blocks.getStringList("blocks").contains(bannedBlock)) {
+                p.sendMessage(ChatColor.RED + "This block doesn't exist!");
+                return true;
+            }
+            Main.banned.getStringList("bannedblocks").add(bannedBlock);
+            main.saveResource("banned.yml", true);
+            p.sendMessage(ChatColor.AQUA + "Successfully banned " + bannedBlock.toLowerCase() + "!");
+            return true;
+        }
+        if (args[0].equals("unban")) {
+            String unbannedBlock = args[1].toUpperCase();
+            if(!p.hasPermission("blockshuffle.unban") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
+            if(args.length != 2) {
+                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                return true;
+            }
+            if(!banned.getStringList("disabledBlocks").contains(unbannedBlock)) {
+                p.sendMessage(ChatColor.RED + "This block isn't banned!");
+                return true;
+            }
+            banned.getStringList("disabledBlocks").remove(unbannedBlock);
+            main.saveResource("banned.yml", true);
+            p.sendMessage(ChatColor.AQUA + "Successfully unbanned " + unbannedBlock.toLowerCase() + "!");
+            return true;
+        }
         p.sendMessage(ChatColor.RED + "Wrong argument. For help, type: /blockshuffle help");
         return true;
+    }
+
+    private void removePlayer(String name) {
+        int index = players.indexOf(name);
+        players.remove(index);
+        if (inGame) {
+            if(main.getConfig().getBoolean("takeAwayOps")) {
+                OfflinePlayer target = Bukkit.getOfflinePlayer(name);
+                target.setOp(ops.get(index));
+                ops.remove(index);
+            }
+            if (main.getConfig().getInt("gameMode") == 1) {
+                points.remove(index);
+            }
+            blocks.remove(index);
+            finished.remove(index);
+            if (main.getConfig().getBoolean("scoreboard")) {
+                Player player = Bukkit.getPlayerExact(name);
+                if(player != null) {
+                    player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+                }
+            }
+        }
     }
 
     private int goodPlayers() {
@@ -360,7 +481,7 @@ public class BlockShuffleCommand implements CommandExecutor {
         List<Material> materials = new LinkedList<>(Arrays.asList(Material.values()));
         Random random = new Random();
         materials.removeIf(obj -> !obj.isBlock());
-        for(String g : disabled.getStringList("disabledBlocks")) {
+        for(String g : banned.getStringList("disabledBlocks")) {
             materials.removeIf(obj -> obj.name().equals(g));
         }
         if(!main.getConfig().getBoolean("enableNetherBlocks")) {

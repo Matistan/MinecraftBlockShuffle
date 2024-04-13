@@ -1,8 +1,8 @@
-# This is a default disabled.yml file with some hard and impossible blocks, and they won't be used in a blockshuffle
-# You can add more blocks to this list to disable them (or delete ones that are here to enable them)
+# This is a default banned.yml file with some hard and impossible blocks, and they won't be used in a blockshuffle
+# You can add more blocks to this list from the blocks.yml file to disable them (or delete ones that are here to enable them)
 # If you changed this file, and you want a default one again, simply delete it and reload the server. A new file should be generated
 
-disabledBlocks:
+banned:
   - SHULKER_BOX
   - WHITE_SHULKER_BOX
   - ORANGE_SHULKER_BOX
