@@ -57,7 +57,7 @@ you can use the `/blockshuffle ban <block_name>` command to ban the block, and t
 - `/blockshuffle start` - starts a game
 - `/blockshuffle reset` - resets a game
 - `/blockshuffle list` - shows a list of players in a block shuffle game
-- `/blockshuffle skip` - skips a round (i.e. when someone got an impossible block)
+- `/blockshuffle skip` - skips a round (e.g. when someone got an impossible block)
 - `/blockshuffle ban <block>` - bans a block
 - `/blockshuffle unban <block>` - unbans a block
 - `/blockshuffle help` - shows a list of block shuffle commands
