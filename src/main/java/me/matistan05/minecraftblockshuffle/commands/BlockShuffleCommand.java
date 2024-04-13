@@ -388,6 +388,10 @@ public class BlockShuffleCommand implements CommandExecutor {
                 return true;
             }
             for (int i = 0; i < players.size(); i++) {
+                System.out.println(finished.get(i) + " " + points.get(i));
+                if (main.getConfig().getInt("gameMode") == 1 && finished.get(i)) {
+                    points.set(i, points.get(i) - 1);
+                }
                 finished.set(i, true);
             }
             playersMessage(ChatColor.DARK_GREEN + " skipped the round!");

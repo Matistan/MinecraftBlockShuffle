@@ -17,4 +17,7 @@ permissions:
       blockshuffle.start: true
       blockshuffle.reset: true
       blockshuffle.list: true
+      blockshuffle.skip: true
+      blockshuffle.ban: true
+      blockshuffle.unban: true
       blockshuffle.help: true
