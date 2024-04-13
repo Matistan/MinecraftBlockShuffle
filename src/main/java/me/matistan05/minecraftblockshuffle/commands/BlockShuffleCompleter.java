@@ -1,5 +1,6 @@
 package me.matistan05.minecraftblockshuffle.commands;
 
+import me.matistan05.minecraftblockshuffle.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -32,6 +33,15 @@ public class BlockShuffleCompleter implements TabCompleter {
             }
             if(startsWith("list", args[0])) {
                 list.add("list");
+            }
+            if(startsWith("skip", args[0])) {
+                list.add("skip");
+            }
+            if(startsWith("ban", args[0])) {
+                list.add("ban");
+            }
+            if(startsWith("unban", args[0])) {
+                list.add("unban");
             }
             if(startsWith("help", args[0])) {
                 list.add("help");
@@ -70,6 +80,23 @@ public class BlockShuffleCompleter implements TabCompleter {
             for (Player player : tabPlayers) {
                 if (startsWith(player.getName(), args[args.length - 1])) {
                     list.add(player.getName());
+                }
+            }
+        } else if (args.length == 2) {
+            if(args[0].equals("ban")) {
+                List<String> blocks = Main.blocks.getStringList("blocks");
+                blocks.removeIf(block -> Main.banned.getStringList("bannedBlocks").contains(block));
+                for(String block : blocks) {
+                    if(startsWith(block, args[1])) {
+                        list.add(block.toLowerCase());
+                    }
+                }
+            } else if(args[0].equals("unban")) {
+                List<String> bannedBlocks = Main.banned.getStringList("bannedBlocks");
+                for(String block : bannedBlocks) {
+                    if(startsWith(block, args[1])) {
+                        list.add(block.toLowerCase());
+                    }
                 }
             }
         }
