@@ -24,17 +24,6 @@ public class MoveListener implements Listener {
                     finished.set(i, true);
                     if(main.getConfig().getInt("gameMode") == 1) {
                         points.set(i, points.get(i) + 1);
-                        if(points.get(i) == requiredPoints) {
-                            if(playersWith(requiredPoints - 1) == 0) {
-                                playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
-                                for(int j = 0; j < players.size(); j++) {
-                                    playersMessage(ChatColor.DARK_AQUA + players.get(j) + " " + points.get(j));
-                                }
-                                playersMessage(ChatColor.GOLD + "" + ChatColor.MAGIC + "IR" + ChatColor.GOLD + players.get(i) + " won! Their score: " + requiredPoints + " point" +
-                                        (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
-                                reset();
-                            }
-                        }
                     }
                     break;
                 }
