@@ -226,43 +226,12 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + better(blocks.get(i).name()));
             }
             inGame = true;
-            time = Math.max(main.getConfig().getInt("time"), 60);
-            time = Math.min(main.getConfig().getInt("time"), 3600);
+            time = Math.max(Math.min(main.getConfig().getInt("time"), 3600), 60);
             game = new BukkitRunnable() {
                 @Override
                 public void run() {
                     if (goodPlayers() == players.size()) {
                         seconds = time;
-                    }
-                    for (int i = 1; i <= 10; i++) {
-                        if ((seconds + i) % time == 0) {
-                            playersMessage(ChatColor.LIGHT_PURPLE + String.valueOf(i) + " second" + (i == 1 ? "" : "s") + " remaining!");
-                            break;
-                        }
-                    }
-                    if (main.getConfig().getBoolean("scoreboard")) {
-                        for (int i = 0; i < players.size(); i++) {
-                            Player player = Bukkit.getPlayerExact(players.get(i));
-                            if (player != null) {
-                                scoreboard = scoreboardManager.getNewScoreboard();
-                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + String.valueOf(ChatColor.BOLD) + "Block Shuffle");
-                                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                                Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + (time - (seconds % time)));
-                                Score score2;
-                                if (main.getConfig().getInt("gameMode") == 0) {
-                                    score2 = objective.getScore(ChatColor.BLUE + "Players left: " + players.size());
-                                } else {
-                                    score2 = objective.getScore(ChatColor.BLUE + "Points: " + points.get(i) + "/" + requiredPoints);
-                                }
-                                Score score3 = objective.getScore(ChatColor.DARK_GREEN + "Block: " + better(blocks.get(i).name()));
-                                Score score = objective.getScore(ChatColor.AQUA + "Round: " + round);
-                                timer.setScore(4);
-                                score3.setScore(3);
-                                score2.setScore(2);
-                                score.setScore(1);
-                                player.setScoreboard(scoreboard);
-                            }
-                        }
                     }
                     if (seconds % time == 0 && seconds != 0) {
                         for (int i = 0; i < players.size(); i++) {
@@ -333,6 +302,36 @@ public class BlockShuffleCommand implements CommandExecutor {
                             Player target = Bukkit.getPlayerExact(players.get(i));
                             if (target != null) {
                                 target.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + better(blocks.get(i).name()));
+                            }
+                        }
+                    }
+                    for (int i = 1; i <= 10; i++) {
+                        if ((seconds + i) % time == 0) {
+                            playersMessage(ChatColor.LIGHT_PURPLE + String.valueOf(i) + " second" + (i == 1 ? "" : "s") + " remaining!");
+                            break;
+                        }
+                    }
+                    if (main.getConfig().getBoolean("scoreboard")) {
+                        for (int i = 0; i < players.size(); i++) {
+                            Player player = Bukkit.getPlayerExact(players.get(i));
+                            if (player != null) {
+                                scoreboard = scoreboardManager.getNewScoreboard();
+                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + String.valueOf(ChatColor.BOLD) + "Block Shuffle");
+                                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                                Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + timeLeft());
+                                Score score2;
+                                if (main.getConfig().getInt("gameMode") == 0) {
+                                    score2 = objective.getScore(ChatColor.BLUE + "Players left: " + players.size());
+                                } else {
+                                    score2 = objective.getScore(ChatColor.BLUE + "Points: " + points.get(i) + "/" + requiredPoints);
+                                }
+                                Score score3 = objective.getScore(ChatColor.DARK_GREEN + "Block: " + better(blocks.get(i).name()));
+                                Score score = objective.getScore(ChatColor.AQUA + "Round: " + round);
+                                timer.setScore(4);
+                                score3.setScore(3);
+                                score2.setScore(2);
+                                score.setScore(1);
+                                player.setScoreboard(scoreboard);
                             }
                         }
                     }
@@ -453,6 +452,10 @@ public class BlockShuffleCommand implements CommandExecutor {
         }
         p.sendMessage(ChatColor.RED + "Wrong argument. For help, type: /blockshuffle help");
         return true;
+    }
+
+    private String timeLeft() {
+        return String.format("%02d:%02d", (time - (seconds % time)) / 60, (time - (seconds % time)) % 60);
     }
 
     private void removePlayer(String name) {
