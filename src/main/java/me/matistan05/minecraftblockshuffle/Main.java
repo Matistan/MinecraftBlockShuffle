@@ -22,7 +22,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         saveDefaultConfig();
         getServer().getPluginCommand("blockshuffle").setExecutor(new BlockShuffleCommand(this));
-        getCommand("blockshuffle").setTabCompleter(new BlockShuffleCompleter());
+        getCommand("blockshuffle").setTabCompleter(new BlockShuffleCompleter(this));
         new MoveListener(this);
         new DamageListener(this);
         saveResource("banned.yml", false);

@@ -30,6 +30,7 @@ public class BlockShuffleCommand implements CommandExecutor {
     public static Scoreboard scoreboard;
     static Objective objective;
     public static boolean inGame = false;
+    public static boolean firstGameMode = true;
     public static BukkitTask game;
     int time;
     public static int requiredPoints, round;
@@ -57,15 +58,53 @@ public class BlockShuffleCommand implements CommandExecutor {
             p.sendMessage(ChatColor.GREEN + "------- " + ChatColor.WHITE + " Minecraft BlockShuffle " + ChatColor.GREEN + "----------");
             p.sendMessage(ChatColor.BLUE + "Here is a list of blockshuffle commands:");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle add <player> <player> ... " + ChatColor.AQUA + "- adds players to a blockshuffle game");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle add @a " + ChatColor.AQUA + "- adds all players");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle remove <player> <player> ... " + ChatColor.AQUA + "- removes players from a blockshuffle game");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle remove @a " + ChatColor.AQUA + "- removes all players");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle start " + ChatColor.AQUA + "- starts a blockshuffle game");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle reset " + ChatColor.AQUA + "- resets a blockshuffle game");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle list " + ChatColor.AQUA + "- shows a list of players in a blockshuffle game");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle skip " + ChatColor.AQUA + "- skips a round (i.e. when someone got an impossible block)");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle ban " + ChatColor.AQUA + "- bans a block from being chosen next time");
-            p.sendMessage(ChatColor.YELLOW + "/blockshuffle ban " + ChatColor.AQUA + "- unbans a block");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle unban " + ChatColor.AQUA + "- unbans a block");
+            p.sendMessage(ChatColor.YELLOW + "/blockshuffle rules <rule> value(optional) " + ChatColor.AQUA + "- changes some additional rules of the game (in config.yml)");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle help " + ChatColor.AQUA + "- shows a list of blockshuffle commands");
             p.sendMessage(ChatColor.GREEN + "----------------------------------");
+            return true;
+        }
+        if (args[0].equals("rules")) {
+            if (!p.hasPermission("blockshuffle.rules") && main.getConfig().getBoolean("usePermissions")) {
+                p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
+                return true;
+            }
+            if (args.length != 3 && args.length != 2) {
+                p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
+                return true;
+            }
+            if (!main.getConfig().contains(args[1])) {
+                p.sendMessage(ChatColor.RED + "There is no such rule. See the config.yml file for more information.");
+                return true;
+            }
+            if (args.length == 2) {
+                p.sendMessage(ChatColor.AQUA + "The value of the rule " + args[1] + " is: " + main.getConfig().get(args[1]));
+                return true;
+            }
+            if (args[1].equals("time") || args[1].equals("gameMode") || args[1].equals("pointsToWin")) {
+                try {
+                    main.getConfig().set(args[1], Integer.parseInt(args[2]));
+                } catch (NumberFormatException e) {
+                    p.sendMessage(ChatColor.RED + "The value must be a number!");
+                    return true;
+                }
+            } else {
+                if (!args[2].equals("true") && !args[2].equals("false")) {
+                    p.sendMessage(ChatColor.RED + "The value must be true or false!");
+                    return true;
+                }
+                main.getConfig().set(args[1], Boolean.parseBoolean(args[2]));
+            }
+            main.saveConfig();
+            p.sendMessage(ChatColor.AQUA + "The value of the rule " + args[1] + " has been changed to: " + args[2]);
             return true;
         }
         if (args[0].equals("add")) {
@@ -165,6 +204,12 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
+            if (main.getConfig().getBoolean("playWithEveryone")) {
+                players.clear();
+                for (Player target : Bukkit.getOnlinePlayers()) {
+                    players.add(target.getName());
+                }
+            }
             if (players.isEmpty()) {
                 p.sendMessage(ChatColor.RED + "There are no players in the game!");
                 return true;
@@ -188,8 +233,9 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
             round = 1;
             startPlayers = players.size();
+            firstGameMode = main.getConfig().getInt("gameMode") <= 0;
             playersMessage(ChatColor.AQUA + "START!");
-            if (main.getConfig().getInt("gameMode") == 1) {
+            if (!firstGameMode) {
                 requiredPoints = (Math.max(main.getConfig().getInt("pointsToWin"), 1));
                 playersMessage(ChatColor.AQUA + "First player to score " + requiredPoints +
                         " point" + (requiredPoints == 1 ? "" : "s") + ", wins!");
@@ -212,7 +258,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 player.setGameMode(GameMode.SURVIVAL);
                 player.setHealth(20);
                 player.setFoodLevel(20);
-                player.setSaturation(20);
+                player.setSaturation(5);
                 finished.add(false);
                 if (main.getConfig().getBoolean("sameBlockForEveryone")) {
                     if (i > 0) {
@@ -239,7 +285,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 playersMessage(ChatColor.DARK_RED + players.get(i) + " didn't stand on their block!");
                             }
                         }
-                        if (main.getConfig().getInt("gameMode") == 0) {
+                        if (firstGameMode) {
                             if (goodPlayers() == 1) {
                                 if (startPlayers != 1) {
                                     playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.get(finished.indexOf(true)) + " won!" + ChatColor.MAGIC + "IR");
@@ -320,7 +366,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 objective.setDisplaySlot(DisplaySlot.SIDEBAR);
                                 Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + timeLeft());
                                 Score score2;
-                                if (main.getConfig().getInt("gameMode") == 0) {
+                                if (firstGameMode) {
                                     score2 = objective.getScore(ChatColor.BLUE + "Players left: " + players.size());
                                 } else {
                                     score2 = objective.getScore(ChatColor.BLUE + "Points: " + points.get(i) + "/" + requiredPoints);
@@ -388,7 +434,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
             for (int i = 0; i < players.size(); i++) {
                 System.out.println(finished.get(i) + " " + points.get(i));
-                if (main.getConfig().getInt("gameMode") == 1 && finished.get(i)) {
+                if (!firstGameMode && finished.get(i)) {
                     points.set(i, points.get(i) - 1);
                 }
                 finished.set(i, true);
@@ -467,7 +513,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 target.setOp(ops.get(index));
                 ops.remove(index);
             }
-            if (main.getConfig().getInt("gameMode") == 1) {
+            if (!firstGameMode) {
                 points.remove(index);
             }
             blocks.remove(index);

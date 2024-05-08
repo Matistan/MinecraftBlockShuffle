@@ -45,8 +45,8 @@ you can use the `/blockshuffle ban <block_name>` command to ban the block, and t
 ## How to use it
 
 - drag the .jar file from the [Release tab](https://github.com/Matistan/MinecraftBlockShuffle/releases) to your plugins folder on your server.
-- select players to your game using `/blockshuffle add` command
 - type `/blockshuffle start` to start the match!
+- if you don't want to play with every player on the server, change the rule `playWithEveryone` to false, and choose the players using `/blockshuffle add` command
 
 ## Commands
 
@@ -60,26 +60,28 @@ you can use the `/blockshuffle ban <block_name>` command to ban the block, and t
 - `/blockshuffle skip` - skips a round (e.g. when someone got an impossible block)
 - `/blockshuffle ban <block>` - bans a block
 - `/blockshuffle unban <block>` - unbans a block
+- `/blockshuffle rules <rule> value(optional)` - changes some additional rules of the game (in config.yml)
 - `/blockshuffle help` - shows a list of block shuffle commands
 
 ## Configuration Options
 
-Edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following options:
+Use the command `/blockshuffle rules` or edit the `plugins/MinecraftBlockShuffle/config.yml` file to change the following options:
 
 ### Main Options
 
-| Key                  | Description                                                                 | Type    | recommended                                                             |
-|----------------------|-----------------------------------------------------------------------------|---------|-------------------------------------------------------------------------|
-| timeSetDayOnStart    | Set to true to set the time to day automatically when the game starts.      | boolean | true                                                                    |
-| weatherClearOnStart  | Set to true to set the weather to clear automatically when the game starts. | boolean | true                                                                    |
-| enableNetherBlocks   | Set to true to enable nether blocks.                                        | boolean | false; if you choose true, then I recommend increasing time for a round |
-| takeAwayOps          | Set to true to take away OPs for the duration of the game.                  | boolean | true                                                                    |
-| clearInventories     | Set to true to clear players inventories when the game starts.              | boolean | true                                                                    |
-| time                 | Set the time for a round in seconds (60sec - 3600sec).                      | int     | 300                                                                     |
-| sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on. | boolean | false; true for less RNG                                                |
-| pvpEnabled           | Set to true to enable PvP during the match.                                 | boolean | false                                                                   |
-| scoreboard           | Set to true to show scoreboard with the timer.                              | boolean | true                                                                    |
-| usePermissions       | Set to true to require users to have permission to use certain commands.    | boolean | false; true if you don't trust the people you're playing with           |
+| Key                  | Description                                                                                                     | Type    | recommended                                                             |
+|----------------------|-----------------------------------------------------------------------------------------------------------------|---------|-------------------------------------------------------------------------|
+| timeSetDayOnStart    | Set to true to set the time to day automatically when the game starts.                                          | boolean | true                                                                    |
+| weatherClearOnStart  | Set to true to set the weather to clear automatically when the game starts.                                     | boolean | true                                                                    |
+| playWithEveryone     | Set to true to not have to use '/blockshuffle add' every time, and instead play with every player on the server | boolean | true                                                                    |
+| enableNetherBlocks   | Set to true to enable nether blocks.                                                                            | boolean | false; if you choose true, then I recommend increasing time for a round |
+| takeAwayOps          | Set to true to take away OPs for the duration of the game.                                                      | boolean | true                                                                    |
+| clearInventories     | Set to true to clear players inventories when the game starts.                                                  | boolean | true                                                                    |
+| time                 | Set the time for a round in seconds (60sec - 3600sec).                                                          | int     | 300                                                                     |
+| sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on.                                     | boolean | false; true for less RNG                                                |
+| pvpEnabled           | Set to true to enable PvP during the match.                                                                     | boolean | false                                                                   |
+| scoreboard           | Set to true to show scoreboard with the timer.                                                                  | boolean | true                                                                    |
+| usePermissions       | Set to true to require users to have permission to use certain commands.                                        | boolean | false; true if you don't trust the people you're playing with           |
 
 ### Game Mode Options
 
@@ -103,6 +105,7 @@ If `usePermissions` is set to `true` in the `config.yml` file, players without o
 | blockshuffle.skip         | Allows the player to use the `/blockshuffle skip` command.   |
 | blockshuffle.ban          | Allows the player to use the `/blockshuffle ban` command.    |
 | blockshuffle.unban        | Allows the player to use the `/blockshuffle unban` command.  |
+| blockshuffle.rules        | Allows the player to use the `/blockshuffle rules` command.  |
 | blockshuffle.help         | Allows the player to use the `/blockshuffle help` command.   |
 
 ### Bugs & Issues

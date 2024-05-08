@@ -20,4 +20,5 @@ permissions:
       blockshuffle.skip: true
       blockshuffle.ban: true
       blockshuffle.unban: true
+      blockshuffle.rules: true
       blockshuffle.help: true
