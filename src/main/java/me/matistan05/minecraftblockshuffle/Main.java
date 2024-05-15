@@ -51,6 +51,7 @@ public final class Main extends JavaPlugin {
         }
         blocks = YamlConfiguration.loadConfiguration(blocksFile);
         blocks.options().copyDefaults(true);
+        new Metrics(this, 21886);
         System.out.println("*********************************************************\n" +
                 "Thank you for using this plugin! <3\n" +
                 "Author: Matistan\n" +
