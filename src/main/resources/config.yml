@@ -18,7 +18,7 @@ enableNetherBlocks: false
 takeAwayOps: true
 # Set to true to clear players inventories when the game starts.
 clearInventories: true
-# Set the time for a round (60sec - 3600sec).
+# Set the amount of seconds for a round (max 3600sec).
 time: 300
 # Set to true to make it so that every player has the same block to stand on.
 sameBlockForEveryone: false
@@ -28,13 +28,17 @@ pvpEnabled: false
 scoreboard: true
 # Set to true to enable permission checks.
 ## Note: This feature needs a permissions plugin (such as LuckPerms) to work.
-usePermissions: false
+usePermissions: true
+# Set to true to give spectators to players that are no longer in the game.
+giveSpectators: true
 
 # *********************
 # * GAME MODE OPTIONS *
 # *********************
 
 # Set to 0 to play until there is 1 or 0 players left in a game, set to 1 to play until a player has a certain amount of points.
-gameMode: 0
+gameMode: 1
 # Set the number of point required to win (only if you're playing game mode 1).
 pointsToWin: 5
+# Set to true to allow only one player to score a point per round (only if you're playing game mode 1).
+onlyFirstPoint: false
