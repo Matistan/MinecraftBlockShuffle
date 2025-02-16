@@ -1,6 +1,7 @@
 package me.matistan05.minecraftblockshuffle.commands;
 
 import me.matistan05.minecraftblockshuffle.Main;
+import me.matistan05.minecraftblockshuffle.classes.BlockShufflePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -80,14 +81,14 @@ public class BlockShuffleCompleter implements TabCompleter {
             List<Player> tabPlayers = new LinkedList<>();
             if(args[0].equals("add")) {
                 tabPlayers = new LinkedList<>(Bukkit.getOnlinePlayers());
-                for(String s : players) {
-                    Player player = Bukkit.getPlayerExact(s);
+                for(BlockShufflePlayer playerObject : players) {
+                    Player player = Bukkit.getPlayerExact(playerObject.getName());
                     if(player == null) {continue;}
                     notForTab.add(player.getName());
                 }
             } else {
-                for(String s : players) {
-                    Player player = Bukkit.getPlayerExact(s);
+                for(BlockShufflePlayer playerObject : players) {
+                    Player player = Bukkit.getPlayerExact(playerObject.getName());
                     if(player == null) {continue;}
                     tabPlayers.add(player);
                 }
