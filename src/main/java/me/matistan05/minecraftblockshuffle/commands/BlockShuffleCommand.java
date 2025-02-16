@@ -1,6 +1,7 @@
 package me.matistan05.minecraftblockshuffle.commands;
 
 import me.matistan05.minecraftblockshuffle.Main;
+import me.matistan05.minecraftblockshuffle.classes.BlockShufflePlayer;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,29 +13,25 @@ import org.bukkit.scoreboard.*;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static me.matistan05.minecraftblockshuffle.Main.bannedFile;
 
 public class BlockShuffleCommand implements CommandExecutor {
     private static Main main;
-    public static List<String> players = new LinkedList<>();
-    public static List<Boolean> ops = new LinkedList<>();
-    public static List<Boolean> finished = new LinkedList<>();
-    public static List<Integer> points = new LinkedList<>();
-    public static List<Material> blocks = new LinkedList<>();
+    public static List<BlockShufflePlayer> players = new ArrayList<>();
     int startPlayers;
     public static ScoreboardManager scoreboardManager = Bukkit.getScoreboardManager();
-    public static Scoreboard scoreboard;
-    static Objective objective;
     public static boolean inGame = false;
     public static boolean firstGameMode = true;
     public static BukkitTask game;
-    int time;
+    public static int roundTime;
     public static int requiredPoints, round;
-    static int seconds = 0;
+    public static int seconds;
+    public static Material blockForEveryone;
 
     public BlockShuffleCommand(Main main) {
         BlockShuffleCommand.main = main;
@@ -44,9 +41,7 @@ public class BlockShuffleCommand implements CommandExecutor {
     public boolean onCommand(CommandSender p, Command command, String label, String[] args) {
         if (args.length == 0) {
             p.sendMessage(ChatColor.RED + "You must type an argument. For help, type: /blockshuffle help");
-            return true;
-        }
-        if (args[0].equals("help")) {
+        } else if (args[0].equals("help")) {
             if (!p.hasPermission("blockshuffle.help") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -70,9 +65,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle rules <rule> value(optional) " + ChatColor.AQUA + "- changes some additional rules of the game (in config.yml)");
             p.sendMessage(ChatColor.YELLOW + "/blockshuffle help " + ChatColor.AQUA + "- shows a list of blockshuffle commands");
             p.sendMessage(ChatColor.GREEN + "----------------------------------");
-            return true;
-        }
-        if (args[0].equals("rules")) {
+        } else if (args[0].equals("rules")) {
             if (!p.hasPermission("blockshuffle.rules") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -105,9 +98,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
             main.saveConfig();
             p.sendMessage(ChatColor.AQUA + "The value of the rule " + args[1] + " has been changed to: " + args[2]);
-            return true;
-        }
-        if (args[0].equals("add")) {
+        } else if (args[0].equals("add")) {
             if (!p.hasPermission("blockshuffle.add") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -116,44 +107,44 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
-            if (inGame) {
-                p.sendMessage(ChatColor.RED + "The game has already started!");
-                return true;
-            }
-            int count = 0;
+            List<String> playersToAdd;
             if (args[1].equals("@a")) {
                 if (args.length != 2) {
                     p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                     return true;
                 }
-                for (Player target : Bukkit.getOnlinePlayers()) {
-                    if (players.contains(target.getName())) continue;
-                    players.add(target.getName());
-                    count++;
-                }
-                if (count > 0) {
-                    p.sendMessage(ChatColor.AQUA + "Successfully added " + count + " player" + (count == 1 ? "" : "s") + " to the game!");
-                } else {
-                    p.sendMessage(ChatColor.RED + "No player was added!");
-                }
-                return true;
+                playersToAdd = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+            } else {
+                playersToAdd = Arrays.stream(args).skip(1).collect(Collectors.toList());
+                playersToAdd = playersToAdd.stream().filter(name -> Bukkit.getPlayerExact(name) != null).collect(Collectors.toList());
             }
-            for (int i = 1; i < args.length; i++) {
-                Player target = Bukkit.getPlayerExact(args[i]);
-                if (target == null || players.contains(target.getName())) {
-                    continue;
+            int count = 0;
+            for (String playerName : playersToAdd) {
+                if (inGame && startPlayers == 1) {
+                    if (!isStillPlaying(playerName)) {
+                        p.sendMessage(ChatColor.RED + "You can't add player to the solo game!");
+                        return true;
+                    }
                 }
-                players.add(target.getName());
-                count++;
+                boolean newPlayer = false;
+                if (!isPlayer(playerName)) {
+                    players.add(new BlockShufflePlayer(playerName));
+                    if (inGame) {
+                        setUpPlayer(playerName);
+                    }
+                    newPlayer = true;
+                } else if (inGame && !isStillPlaying(playerName)) {
+                    setUpPlayer(playerName);
+                    newPlayer = true;
+                }
+                if (newPlayer) count++;
             }
             if (count > 0) {
                 p.sendMessage(ChatColor.AQUA + "Successfully added " + count + " player" + (count == 1 ? "" : "s") + " to the game!");
             } else {
-                p.sendMessage(ChatColor.RED + "Could not add " + (args.length == 2 ? "this player!" : "these players!"));
+                p.sendMessage(ChatColor.RED + "No player was added!");
             }
-            return true;
-        }
-        if (args[0].equals("remove")) {
+        } else if (args[0].equals("remove")) {
             if (!p.hasPermission("blockshuffle.remove") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -163,39 +154,42 @@ public class BlockShuffleCommand implements CommandExecutor {
                 return true;
             }
             int count = 0;
+            List<String> playersToRemove;
             if (args[1].equals("@a")) {
                 if (args.length != 2) {
                     p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                     return true;
                 }
-                for (Player target : Bukkit.getOnlinePlayers()) {
-                    if (!players.contains(target.getName()) || (inGame && players.size() == 1)) continue;
-                    removePlayer(target.getName());
-                    count++;
+                if (inGame) {
+                    p.sendMessage(ChatColor.RED + "You can't remove all players while in game!");
+                    return true;
                 }
-                if (count > 0) {
-                    p.sendMessage(ChatColor.AQUA + "Successfully removed " + count + " player" + (count == 1 ? "" : "s") + " from the game!");
-                } else {
-                    p.sendMessage(ChatColor.RED + "No player was removed!");
+                playersToRemove = players.stream().map(BlockShufflePlayer::getName).collect(Collectors.toList());
+            } else {
+                playersToRemove = Arrays.stream(args).skip(1).collect(Collectors.toList());
+                playersToRemove = playersToRemove.stream().filter(BlockShuffleCommand::isStillPlaying).collect(Collectors.toList());
+                if (inGame) {
+                    int newSize = amountOfPlayersWhoAreStillPlaying() - playersToRemove.size();
+                    if (startPlayers > 1 && newSize < 2) {
+                        p.sendMessage(ChatColor.RED + "There must be at least two players in the multiplayer game!");
+                        return true;
+                    }
+                    if (newSize == 0) {
+                        p.sendMessage(ChatColor.RED + "There must be at least one player in the game!");
+                        return true;
+                    }
                 }
-                return true;
             }
-            for (int i = 1; i < args.length; i++) {
-                Player target = Bukkit.getPlayerExact(args[i]);
-                if (target == null || !players.contains(target.getName()) || (inGame && players.size() == 1)) {
-                    continue;
-                }
-                removePlayer(target.getName());
+            for (String playerName : playersToRemove) {
+                removePlayer(playerName);
                 count++;
             }
             if (count > 0) {
                 p.sendMessage(ChatColor.AQUA + "Successfully removed " + count + " player" + (count == 1 ? "" : "s") + " from the game!");
             } else {
-                p.sendMessage(ChatColor.RED + "Could not remove " + (args.length == 2 ? "this player!" : "these players!"));
+                p.sendMessage(ChatColor.RED + "No player was removed!");
             }
-            return true;
-        }
-        if (args[0].equals("start")) {
+        } else if (args[0].equals("start")) {
             if (!p.hasPermission("blockshuffle.start") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -204,22 +198,22 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
+            if (inGame) {
+                p.sendMessage(ChatColor.YELLOW + "The game has already started!");
+                return true;
+            }
             if (main.getConfig().getBoolean("playWithEveryone")) {
                 players.clear();
                 for (Player target : Bukkit.getOnlinePlayers()) {
-                    players.add(target.getName());
+                    players.add(new BlockShufflePlayer(target.getName()));
                 }
             }
             if (players.isEmpty()) {
                 p.sendMessage(ChatColor.RED + "There are no players in the game!");
                 return true;
             }
-            if (inGame) {
-                p.sendMessage(ChatColor.YELLOW + "The game has already started!");
-                return true;
-            }
-            for (String v : players) {
-                Player player = Bukkit.getPlayerExact(v);
+            for (BlockShufflePlayer playerObject : players) {
+                Player player = Bukkit.getPlayerExact(playerObject.getName());
                 if (player == null) {
                     p.sendMessage(ChatColor.RED + "Someone from your game is offline!");
                     return true;
@@ -239,154 +233,98 @@ public class BlockShuffleCommand implements CommandExecutor {
                 requiredPoints = (Math.max(main.getConfig().getInt("pointsToWin"), 1));
                 playersMessage(ChatColor.AQUA + "First player to score " + requiredPoints +
                         " point" + (requiredPoints == 1 ? "" : "s") + ", wins!");
-                for (String ignored : players) {
-                    points.add(0);
-                }
             }
-            for (int i = 0; i < players.size(); i++) {
-                Player player = Bukkit.getPlayerExact(players.get(i));
-                if (player == null) {
-                    continue;
-                }
-                if (main.getConfig().getBoolean("takeAwayOps")) {
-                    ops.add(player.isOp());
-                    player.setOp(false);
-                }
-                if (main.getConfig().getBoolean("clearInventories")) {
-                    player.getInventory().clear();
-                }
-                player.setGameMode(GameMode.SURVIVAL);
-                player.setHealth(20);
-                player.setFoodLevel(20);
-                player.setSaturation(5);
-                finished.add(false);
-                if (main.getConfig().getBoolean("sameBlockForEveryone")) {
-                    if (i > 0) {
-                        blocks.add(blocks.get(0));
-                    } else {
-                        blocks.add(randomBlock());
-                    }
-                } else {
-                    blocks.add(randomBlock());
-                }
-                player.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + better(blocks.get(i).name()));
+            if (main.getConfig().getBoolean("sameBlockForEveryone")) {
+                blockForEveryone = randomBlock();
+            }
+            for (BlockShufflePlayer playerObject : players) {
+                setUpPlayer(playerObject.getName());
             }
             inGame = true;
-            time = Math.max(Math.min(main.getConfig().getInt("time"), 3600), 60);
+            roundTime = Math.max(Math.min(main.getConfig().getInt("time"), 3600), 1);
+            seconds = 0;
             game = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    if (goodPlayers() == players.size()) {
-                        seconds = time;
+                    if (amountOfPlayersWhoFoundTheirBlock() == amountOfPlayersWhoAreStillPlaying() || (!firstGameMode && amountOfPlayersWhoFoundTheirBlock() >= 1 && main.getConfig().getBoolean("onlyFirstPoint"))) {
+                        seconds = roundTime;
                     }
-                    if (seconds % time == 0 && seconds != 0) {
-                        for (int i = 0; i < players.size(); i++) {
-                            if (!finished.get(i)) {
-                                playersMessage(ChatColor.DARK_RED + players.get(i) + " didn't stand on their block!");
+                    if (seconds % roundTime == 0 && seconds != 0) {
+                        for (BlockShufflePlayer playerObject : players) {
+                            if (!playerObject.foundHisBlock()) {
+                                playersMessage(ChatColor.DARK_RED + playerObject.getName() + " didn't stand on their block!");
                             }
                         }
                         if (firstGameMode) {
-                            if (goodPlayers() == 1) {
+                            if (amountOfPlayersWhoFoundTheirBlock() == 1) {
                                 if (startPlayers != 1) {
-                                    playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.get(finished.indexOf(true)) + " won!" + ChatColor.MAGIC + "IR");
+                                    playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.stream().filter(BlockShufflePlayer::foundHisBlock).findFirst().get().getName() + " won!" + ChatColor.MAGIC + "IR");
                                     reset();
                                 }
-                            } else if (goodPlayers() == 0) {
+                            } else if (amountOfPlayersWhoFoundTheirBlock() == 0) {
                                 if (startPlayers == 1) {
                                     playersMessage(ChatColor.DARK_RED + "You lost!");
                                 } else {
                                     playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
-                                    for (String player : players) {
-                                        playersMessage(ChatColor.GOLD + player);
+                                    for (BlockShufflePlayer playerObject : players) {
+                                        playersMessage(ChatColor.GOLD + playerObject.getName());
                                     }
                                 }
                                 reset();
                             }
-                            for (int i = 0; i < players.size(); i++) {
-                                if (!finished.get(i)) {
-                                    if (main.getConfig().getBoolean("takeAwayOps")) {
-                                        OfflinePlayer target = Bukkit.getOfflinePlayer(players.get(i));
-                                        target.setOp(ops.get(i));
-                                    }
-                                    players.remove(i);
-                                    i -= 1;
+                            for (BlockShufflePlayer playerObject : players) {
+                                if (!playerObject.foundHisBlock()) {
+                                    removePlayer(playerObject.getName());
                                 }
                             }
                         } else {
                             playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
-                            for (int i = 0; i < players.size(); i++) {
-                                playersMessage(ChatColor.DARK_AQUA + players.get(i) + " " + points.get(i));
+                            for (BlockShufflePlayer playerObject : players) {
+                                Player player = Bukkit.getPlayerExact(playerObject.getName());
+                                if (player == null) continue;
+                                sendScoreboard(player);
                             }
-                            if (playersWith(requiredPoints) == 1) {
-                                playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.get(points.indexOf(requiredPoints)) + " won! Their score: " + requiredPoints
+                            if (amountOfPlayersWithPoints(requiredPoints) == 1) {
+                                playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.stream().filter(p -> p.getPoints() == requiredPoints).findFirst().get().getName() + " won! Their score: " + requiredPoints
                                         + " point" + (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
                                 reset();
-                            } else if (playersWith(requiredPoints) > 1) {
+                            } else if (amountOfPlayersWithPoints(requiredPoints) > 1) {
                                 playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + "Draw! Winners:" + ChatColor.MAGIC + "IR");
-                                for (int i = 0; i < players.size(); i++) {
-                                    if (points.get(i) == requiredPoints) {
-                                        playersMessage(ChatColor.GOLD + players.get(i));
+                                for (BlockShufflePlayer playerObject : players) {
+                                    if (playerObject.getPoints() == requiredPoints) {
+                                        playersMessage(ChatColor.GOLD + playerObject.getName());
                                     }
                                 }
                                 playersMessage(ChatColor.GOLD + "Their score: " + requiredPoints + " point" +
-                                        (requiredPoints <= 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s"));
+                                        (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s"));
                                 reset();
                             }
                         }
                         round += 1;
-                        for (int i = 0; i < players.size(); i++) {
-                            finished.set(i, false);
-                            if (main.getConfig().getBoolean("sameBlockForEveryone")) {
-                                if (i > 0) {
-                                    blocks.set(i, blocks.get(0));
-                                } else {
-                                    blocks.set(0, randomBlock());
-                                }
-                            } else {
-                                blocks.set(i, randomBlock());
-                            }
-                            Player target = Bukkit.getPlayerExact(players.get(i));
-                            if (target != null) {
-                                target.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + better(blocks.get(i).name()));
+                        if (main.getConfig().getBoolean("sameBlockForEveryone")) {
+                            blockForEveryone = randomBlock();
+                        }
+                        for (BlockShufflePlayer playerObject : players) {
+                            setUpBlock(playerObject);
+                            Player player = Bukkit.getPlayerExact(playerObject.getName());
+                            if (player != null) {
+                                player.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + blockNameFormatted(playerObject.getBlock().name()));
                             }
                         }
                     }
                     for (int i = 1; i <= 10; i++) {
-                        if ((seconds + i) % time == 0) {
+                        if ((seconds + i) % roundTime == 0) {
                             playersMessage(ChatColor.LIGHT_PURPLE + String.valueOf(i) + " second" + (i == 1 ? "" : "s") + " remaining!");
                             break;
                         }
                     }
                     if (main.getConfig().getBoolean("scoreboard")) {
-                        for (int i = 0; i < players.size(); i++) {
-                            Player player = Bukkit.getPlayerExact(players.get(i));
-                            if (player != null) {
-                                scoreboard = scoreboardManager.getNewScoreboard();
-                                objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + String.valueOf(ChatColor.BOLD) + "Block Shuffle");
-                                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-                                Score timer = objective.getScore(ChatColor.YELLOW + "Time left: " + timeLeft());
-                                Score score2;
-                                if (firstGameMode) {
-                                    score2 = objective.getScore(ChatColor.BLUE + "Players left: " + players.size());
-                                } else {
-                                    score2 = objective.getScore(ChatColor.BLUE + "Points: " + points.get(i) + "/" + requiredPoints);
-                                }
-                                Score score3 = objective.getScore(ChatColor.DARK_GREEN + "Block: " + better(blocks.get(i).name()));
-                                Score score = objective.getScore(ChatColor.AQUA + "Round: " + round);
-                                timer.setScore(4);
-                                score3.setScore(3);
-                                score2.setScore(2);
-                                score.setScore(1);
-                                player.setScoreboard(scoreboard);
-                            }
-                        }
+                        setUpScoreboard();
                     }
                     seconds += 1;
                 }
             }.runTaskTimer(main, 0, 20);
-            return true;
-        }
-        if (args[0].equals("reset")) {
+        } else if (args[0].equals("reset")) {
             if (!p.hasPermission("blockshuffle.reset") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -397,9 +335,7 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
             p.sendMessage(ChatColor.AQUA + "blockshuffle game has been reseted!");
             reset();
-            return true;
-        }
-        if (args[0].equals("list")) {
+        } else if (args[0].equals("list")) {
             if (!p.hasPermission("blockshuffle.list") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -416,14 +352,8 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "There is no player in your game!");
                 return true;
             }
-            p.sendMessage(ChatColor.GREEN + "------- " + ChatColor.WHITE + " Minecraft BlockShuffle " + ChatColor.GREEN + "----------");
-            for (String player : players) {
-                p.sendMessage(ChatColor.AQUA + player);
-            }
-            p.sendMessage(ChatColor.GREEN + "----------------------------------");
-            return true;
-        }
-        if (args[0].equals("skip")) {
+            sendScoreboard(p);
+        } else if (args[0].equals("skip")) {
             if (!p.hasPermission("blockshuffle.skip") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
                 return true;
@@ -436,16 +366,16 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "The game hasn't started yet!");
                 return true;
             }
-            for (int i = 0; i < players.size(); i++) {
-                if (!firstGameMode && finished.get(i)) {
-                    points.set(i, points.get(i) - 1);
+            if (amountOfPlayersWhoFoundTheirBlock() != amountOfPlayersWhoAreStillPlaying()) {
+                for (BlockShufflePlayer playerObject : players) {
+                    if (!firstGameMode && playerObject.foundHisBlock()) {
+                        playerObject.setPoints(playerObject.getPoints() - 1);
+                    }
+                    playerObject.setFoundHisBlock(true);
                 }
-                finished.set(i, true);
             }
-            playersMessage(ChatColor.DARK_GREEN + " skipped the round!");
-            return true;
-        }
-        if (args[0].equals("ban")) {
+            playersMessage(ChatColor.DARK_GREEN + "Skipped the round!");
+        } else if (args[0].equals("ban")) {
             String bannedBlock = args[1].toUpperCase();
             if (!p.hasPermission("blockshuffle.ban") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
@@ -470,9 +400,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 Main.banned.save(bannedFile);
             } catch (IOException ignored) {}
             p.sendMessage(ChatColor.AQUA + "Successfully banned " + bannedBlock.toLowerCase() + "!");
-            return true;
-        }
-        if (args[0].equals("unban")) {
+        } else if (args[0].equals("unban")) {
             String unbannedBlock = args[1].toUpperCase();
             if (!p.hasPermission("blockshuffle.unban") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
@@ -498,61 +426,31 @@ public class BlockShuffleCommand implements CommandExecutor {
             } catch (IOException ignored) {}
             p.sendMessage(ChatColor.AQUA + "Successfully unbanned " + unbannedBlock.toLowerCase() + "!");
             return true;
+        } else {
+            p.sendMessage(ChatColor.RED + "Wrong argument. For help, type: /blockshuffle help");
         }
-        p.sendMessage(ChatColor.RED + "Wrong argument. For help, type: /blockshuffle help");
         return true;
     }
 
-    private String timeLeft() {
-        return String.format("%02d:%02d", (time - (seconds % time)) / 60, (time - (seconds % time)) % 60);
+    private static String timeLeftFormatted() {
+        return String.format("%02d:%02d", (roundTime - (seconds % roundTime)) / 60, (roundTime - (seconds % roundTime)) % 60);
     }
 
-    private void removePlayer(String name) {
-        int index = players.indexOf(name);
-        players.remove(index);
-        if (inGame) {
-            if (main.getConfig().getBoolean("takeAwayOps")) {
-                OfflinePlayer target = Bukkit.getOfflinePlayer(name);
-                target.setOp(ops.get(index));
-                ops.remove(index);
-            }
-            if (!firstGameMode) {
-                points.remove(index);
-            }
-            blocks.remove(index);
-            finished.remove(index);
-            if (main.getConfig().getBoolean("scoreboard")) {
-                Player player = Bukkit.getPlayerExact(name);
-                if (player != null) {
-                    player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
-                }
-            }
-        }
+    private int amountOfPlayersWhoFoundTheirBlock() {
+        return (int) players.stream().filter(p -> p.foundHisBlock() && p.isStillPlaying()).count();
     }
 
-    private int goodPlayers() {
-        int a = 0;
-        for (boolean f : finished) {
-            if (f) {
-                a++;
-            }
-        }
-        return a;
+    public static int amountOfPlayersWithPoints(int points) {
+        return (int) players.stream().filter(p -> p.getPoints() == points && p.isStillPlaying()).count();
     }
 
-    public static int playersWith(int b) {
-        int a = 0;
-        for (int point : points) {
-            if (point == b) {
-                a++;
-            }
-        }
-        return a;
+    public static int amountOfPlayersWhoAreStillPlaying() {
+        return (int) players.stream().filter(BlockShufflePlayer::isStillPlaying).count();
     }
 
-    private Material randomBlock() {
+    private static Material randomBlock() {
         Material material;
-        List<Material> materials = new LinkedList<>(Arrays.asList(Material.values()));
+        List<Material> materials = new ArrayList<>(Arrays.asList(Material.values()));
         Random random = new Random();
         materials.removeIf(obj -> !obj.isBlock());
         for (String g : Main.banned.getStringList("bannedBlocks")) {
@@ -568,44 +466,47 @@ public class BlockShuffleCommand implements CommandExecutor {
     }
 
     public static void playersMessage(String s) {
-        for (String value : players) {
-            Player player = Bukkit.getPlayerExact(value);
-            if (player != null) {
-                player.sendMessage(s);
-            }
+        for (BlockShufflePlayer playerObject : players) {
+            Player player = Bukkit.getPlayerExact(playerObject.getName());
+            if (player != null) player.sendMessage(s);
         }
     }
 
     public static void reset() {
         if (inGame) {
-            inGame = false;
             game.cancel();
-            if (main.getConfig().getBoolean("scoreboard")) {
-                objective.setDisplaySlot(null);
-                for (String s : players) {
-                    Player player = Bukkit.getPlayerExact(s);
-                    if (player == null) {
-                        continue;
-                    }
-                    player.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+            for (BlockShufflePlayer playerObject : players) {
+                if (main.getConfig().getBoolean("takeAwayOps")) {
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(playerObject.getName());
+                    player.setOp(playerObject.isOp());
+                }
+                Player player = Bukkit.getPlayerExact(playerObject.getName());
+                if (player == null) continue;
+                player.setGameMode(playerObject.getOldGameMode());
+                if (main.getConfig().getBoolean("scoreboard")) {
+//                    playerObject.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
+                    player.setScoreboard(scoreboardManager.getMainScoreboard());
                 }
             }
-            if (main.getConfig().getBoolean("takeAwayOps")) {
-                for (int i = 0; i < players.size(); i++) {
-                    OfflinePlayer target = Bukkit.getOfflinePlayer(players.get(i));
-                    target.setOp(ops.get(i));
-                }
-            }
+            inGame = false;
         }
         players.clear();
-        ops.clear();
-        blocks.clear();
-        points.clear();
-        finished.clear();
-        seconds = 0;
     }
 
-    public static String better(String s) {
+    private void removePlayer(String name) {
+        BlockShufflePlayer playerObject = players.stream().filter(p -> p.getName().equals(name)).findFirst().get();
+        if (inGame) {
+            playerObject.setStillPlaying(false);
+            if (main.getConfig().getBoolean("giveSpectators")) {
+                Player player = Bukkit.getPlayerExact(name);
+                if (player != null) player.setGameMode(GameMode.SPECTATOR);
+            }
+        } else {
+            players.removeIf(p -> p.getName().equals(name));
+        }
+    }
+
+    public static String blockNameFormatted(String s) {
         StringBuilder finalS = new StringBuilder();
         for (int i = 0; i < s.length(); i++) {
             if (i == 0) {
@@ -617,5 +518,101 @@ public class BlockShuffleCommand implements CommandExecutor {
             }
         }
         return finalS.toString();
+    }
+
+    public static void setUpScoreboard() {
+        for (BlockShufflePlayer playerObject : players) {
+            Player player = Bukkit.getPlayerExact(playerObject.getName());
+            if (player == null) continue;
+            Scoreboard scoreboard = playerObject.getScoreboard();
+            scoreboard.getEntries().forEach(scoreboard::resetScores);
+            Objective objective = scoreboard.getObjective("sb");
+            if (objective == null) continue;
+            objective.getScore(ChatColor.YELLOW + "Time left: " + timeLeftFormatted()).setScore(4);
+            if (playerObject.isStillPlaying()) {
+                objective.getScore(ChatColor.DARK_GREEN + "Block: " + blockNameFormatted(playerObject.getBlock().name())).setScore(3);
+            } else {
+                objective.getScore(ChatColor.RED + "You lost!").setScore(3);
+            }
+            if (firstGameMode) {
+                objective.getScore(ChatColor.BLUE + "Players left: " + playersLeft()).setScore(2);
+            } else {
+                objective.getScore(ChatColor.BLUE + "Points: " + playerObject.getPoints() + "/" + requiredPoints).setScore(2);
+            }
+            objective.getScore(ChatColor.AQUA + "Round: " + round).setScore(1);
+        }
+    }
+
+    public static boolean isPlayer(String name) {
+        return players.stream().anyMatch(p -> p.getName().equals(name));
+    }
+
+    public static BlockShufflePlayer getPlayer(String name) {
+        return players.stream().filter(p -> p.getName().equals(name)).findFirst().orElse(null);
+    }
+
+    public static boolean isStillPlaying(String name) {
+        return players.stream().anyMatch(p -> p.getName().equals(name) && p.isStillPlaying());
+    }
+
+    public static int playersLeft() {
+        return (int) players.stream().filter(BlockShufflePlayer::isStillPlaying).count();
+    }
+
+    public void setUpPlayer(String name) {
+        Player player = Bukkit.getPlayerExact(name);
+        if (player == null) return;
+        BlockShufflePlayer playerObject = getPlayer(name);
+        if (playerObject == null) return;
+        if (playerObject.isStillPlaying()) {
+            playerObject.setOldGameMode(player.getGameMode());
+            if (main.getConfig().getBoolean("takeAwayOps")) {
+                playerObject.setOp(player.isOp());
+                player.setOp(false);
+            }
+            if (main.getConfig().getBoolean("scoreboard")) {
+                Scoreboard scoreboard = scoreboardManager.getNewScoreboard();
+                Objective objective = scoreboard.registerNewObjective("sb", "dummy", ChatColor.BLUE + String.valueOf(ChatColor.BOLD) + "Block Shuffle");
+                objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+                playerObject.setScoreboard(scoreboard);
+                player.setScoreboard(scoreboard);
+            }
+        } else {
+            playerObject.resetStats();
+        }
+        setUpBlock(playerObject);
+        player.setGameMode(GameMode.SURVIVAL);
+        player.setHealth(20);
+        player.setFoodLevel(20);
+        player.setSaturation(5);
+        if (main.getConfig().getBoolean("clearInventories")) {
+            player.getInventory().clear();
+        }
+        player.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + blockNameFormatted(playerObject.getBlock().name()));
+    }
+
+    public static void setUpBlock(BlockShufflePlayer playerObject) {
+        playerObject.setFoundHisBlock(false);
+        if (main.getConfig().getBoolean("sameBlockForEveryone")) {
+            playerObject.setBlock(blockForEveryone);
+        } else {
+            playerObject.setBlock(randomBlock());
+        }
+    }
+
+    public static void sendScoreboard(CommandSender p) {
+        p.sendMessage(ChatColor.YELLOW + "-------" + ChatColor.WHITE + " Minecraft BlockShuffle " + ChatColor.YELLOW + "-------");
+        for (BlockShufflePlayer playerObject : players) {
+            StringBuilder status = new StringBuilder();
+            status.append(ChatColor.AQUA).append(playerObject.getName());
+            if (inGame && !firstGameMode && playerObject.isStillPlaying()) {
+                status.append(ChatColor.BLUE).append(" - ").append(playerObject.getPoints()).append(" points");
+            }
+            if (!playerObject.isStillPlaying()) {
+                status.append(ChatColor.RED).append(" (lost)");
+            }
+            p.sendMessage(status.toString());
+        }
+        p.sendMessage(ChatColor.YELLOW + "----------------------------------");
     }
 }
