@@ -1,8 +1,10 @@
 package me.matistan05.minecraftblockshuffle.listeners;
 
 import me.matistan05.minecraftblockshuffle.Main;
+import me.matistan05.minecraftblockshuffle.classes.BlockShufflePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -17,16 +19,15 @@ public class MoveListener implements Listener {
     }
     @EventHandler
     public void moveEvent(PlayerMoveEvent e) {
-        if(inGame) {
-            for (int i = 0; i < players.size(); i++) {
-                if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(blocks.get(i)) && players.get(i).equals(e.getPlayer().getName()) && !finished.get(i)) {
-                    playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
-                    finished.set(i, true);
-                    if(main.getConfig().getInt("gameMode") == 1) {
-                        points.set(i, points.get(i) + 1);
-                    }
-                    break;
-                }
+        if(!inGame) return;
+        Player player = e.getPlayer();
+        if (!isPlayer(player.getName())) return;
+        BlockShufflePlayer playerObject = getPlayer(player.getName());
+        if (e.getTo().clone().subtract(0, 1, 0).getBlock().getType().equals(playerObject.getBlock()) && !playerObject.foundHisBlock()) {
+            playersMessage(ChatColor.GOLD + e.getPlayer().getName() + " found their block!");
+            playerObject.setFoundHisBlock(true);
+            if (main.getConfig().getInt("gameMode") == 1) {
+                playerObject.setPoints(playerObject.getPoints() + 1);
             }
         }
     }
