@@ -12,10 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.*;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static me.matistan05.minecraftblockshuffle.Main.bannedFile;
@@ -241,6 +238,12 @@ public class BlockShuffleCommand implements CommandExecutor {
                 setUpPlayer(playerObject.getName());
             }
             inGame = true;
+            playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
+            for (BlockShufflePlayer playerObject : players) {
+                Player player = Bukkit.getPlayerExact(playerObject.getName());
+                if (player == null) continue;
+                sendScoreboard(player);
+            }
             roundTime = Math.max(Math.min(main.getConfig().getInt("time"), 3600), 1);
             seconds = 0;
             game = new BukkitRunnable() {
@@ -254,6 +257,18 @@ public class BlockShuffleCommand implements CommandExecutor {
                             if (!playerObject.foundHisBlock()) {
                                 playersMessage(ChatColor.DARK_RED + playerObject.getName() + " didn't stand on their block!");
                             }
+                        }
+                        if (main.getConfig().getBoolean("sameBlockForEveryone")) {
+                            blockForEveryone = randomBlock();
+                        }
+                        for (BlockShufflePlayer playerObject : players) {
+                            setUpBlock(playerObject);
+                        }
+                        playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
+                        for (BlockShufflePlayer playerObject : players) {
+                            Player player = Bukkit.getPlayerExact(playerObject.getName());
+                            if (player == null) continue;
+                            sendScoreboard(player);
                         }
                         if (firstGameMode) {
                             if (amountOfPlayersWhoFoundTheirBlock() == 1) {
@@ -278,12 +293,6 @@ public class BlockShuffleCommand implements CommandExecutor {
                                 }
                             }
                         } else {
-                            playersMessage(ChatColor.DARK_AQUA + "Scoreboard:");
-                            for (BlockShufflePlayer playerObject : players) {
-                                Player player = Bukkit.getPlayerExact(playerObject.getName());
-                                if (player == null) continue;
-                                sendScoreboard(player);
-                            }
                             if (amountOfPlayersWithPoints(requiredPoints) == 1) {
                                 playersMessage(ChatColor.GOLD + String.valueOf(ChatColor.MAGIC) + "IR" + ChatColor.GOLD + players.stream().filter(p -> p.getPoints() == requiredPoints).findFirst().get().getName() + " won! Their score: " + requiredPoints
                                         + " point" + (requiredPoints == 1 ? "" : "s") + " in " + round + " round" + (round == 1 ? "" : "s") + ChatColor.MAGIC + "IR");
@@ -301,15 +310,8 @@ public class BlockShuffleCommand implements CommandExecutor {
                             }
                         }
                         round += 1;
-                        if (main.getConfig().getBoolean("sameBlockForEveryone")) {
-                            blockForEveryone = randomBlock();
-                        }
                         for (BlockShufflePlayer playerObject : players) {
-                            setUpBlock(playerObject);
-                            Player player = Bukkit.getPlayerExact(playerObject.getName());
-                            if (player != null) {
-                                player.sendMessage(ChatColor.DARK_GREEN + "Round " + round + ": You must stand on " + blockNameFormatted(playerObject.getBlock().name()));
-                            }
+                            playerObject.setFoundHisBlock(false);
                         }
                     }
                     for (int i = 1; i <= 10; i++) {
@@ -344,15 +346,14 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
-            if (main.getConfig().getBoolean("playWithEveryone")) {
-                p.sendMessage(ChatColor.AQUA + "Everyone is in the game!");
-                return true;
+            if (!inGame && main.getConfig().getBoolean("playWithEveryone")) {
+                List<BlockShufflePlayer> oldPlayers = players;
+                players = Bukkit.getOnlinePlayers().stream().map(player -> new BlockShufflePlayer(player.getName())).collect(Collectors.toList());
+                sendScoreboard(p);
+                players = oldPlayers;
+            } else {
+                sendScoreboard(p);
             }
-            if (players.isEmpty()) {
-                p.sendMessage(ChatColor.RED + "There is no player in your game!");
-                return true;
-            }
-            sendScoreboard(p);
         } else if (args[0].equals("skip")) {
             if (!p.hasPermission("blockshuffle.skip") && main.getConfig().getBoolean("usePermissions")) {
                 p.sendMessage(ChatColor.RED + "You don't have permission to use this command.");
@@ -484,7 +485,6 @@ public class BlockShuffleCommand implements CommandExecutor {
                 if (player == null) continue;
                 player.setGameMode(playerObject.getOldGameMode());
                 if (main.getConfig().getBoolean("scoreboard")) {
-//                    playerObject.getScoreboard().clearSlot(DisplaySlot.SIDEBAR);
                     player.setScoreboard(scoreboardManager.getMainScoreboard());
                 }
             }
@@ -494,7 +494,8 @@ public class BlockShuffleCommand implements CommandExecutor {
     }
 
     private void removePlayer(String name) {
-        BlockShufflePlayer playerObject = players.stream().filter(p -> p.getName().equals(name)).findFirst().get();
+        BlockShufflePlayer playerObject = getPlayer(name);
+        if (playerObject == null) return;
         if (inGame) {
             playerObject.setStillPlaying(false);
             if (main.getConfig().getBoolean("giveSpectators")) {
@@ -592,7 +593,6 @@ public class BlockShuffleCommand implements CommandExecutor {
     }
 
     public static void setUpBlock(BlockShufflePlayer playerObject) {
-        playerObject.setFoundHisBlock(false);
         if (main.getConfig().getBoolean("sameBlockForEveryone")) {
             playerObject.setBlock(blockForEveryone);
         } else {
@@ -601,12 +601,19 @@ public class BlockShuffleCommand implements CommandExecutor {
     }
 
     public static void sendScoreboard(CommandSender p) {
+        if (players.isEmpty()) {
+            p.sendMessage(ChatColor.RED + "There is no player in your game!");
+            return;
+        }
         p.sendMessage(ChatColor.YELLOW + "-------" + ChatColor.WHITE + " Minecraft BlockShuffle " + ChatColor.YELLOW + "-------");
         for (BlockShufflePlayer playerObject : players) {
             StringBuilder status = new StringBuilder();
             status.append(ChatColor.AQUA).append(playerObject.getName());
-            if (inGame && !firstGameMode && playerObject.isStillPlaying()) {
-                status.append(ChatColor.BLUE).append(" - ").append(playerObject.getPoints()).append(" points");
+            if (inGame && playerObject.isStillPlaying()) {
+                status.append(ChatColor.DARK_GREEN).append(" [").append(blockNameFormatted(playerObject.getBlock().name())).append("]");
+                if (!firstGameMode) {
+                    status.append(ChatColor.BLUE).append(" - ").append(playerObject.getPoints()).append(" points");
+                }
             }
             if (!playerObject.isStillPlaying()) {
                 status.append(ChatColor.RED).append(" (lost)");
