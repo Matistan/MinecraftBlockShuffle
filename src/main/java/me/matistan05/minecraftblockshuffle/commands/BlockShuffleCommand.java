@@ -335,7 +335,7 @@ public class BlockShuffleCommand implements CommandExecutor {
                 p.sendMessage(ChatColor.RED + "Wrong usage of this command. For help, type: /blockshuffle help");
                 return true;
             }
-            p.sendMessage(ChatColor.AQUA + "blockshuffle game has been reseted!");
+            p.sendMessage(ChatColor.AQUA + "blockshuffle game has been reset!");
             reset();
         } else if (args[0].equals("list")) {
             if (!p.hasPermission("blockshuffle.list") && main.getConfig().getBoolean("usePermissions")) {

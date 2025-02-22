@@ -3,6 +3,7 @@ package me.matistan05.minecraftblockshuffle;
 import me.matistan05.minecraftblockshuffle.commands.BlockShuffleCommand;
 import me.matistan05.minecraftblockshuffle.commands.BlockShuffleCompleter;
 import me.matistan05.minecraftblockshuffle.listeners.DamageListener;
+import me.matistan05.minecraftblockshuffle.listeners.JoinListener;
 import me.matistan05.minecraftblockshuffle.listeners.MoveListener;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.FileWriter;
 
 import static me.matistan05.minecraftblockshuffle.commands.BlockShuffleCommand.inGame;
+import static me.matistan05.minecraftblockshuffle.commands.BlockShuffleCommand.reset;
 
 public final class Main extends JavaPlugin {
     public static FileConfiguration blocks, banned;
@@ -25,6 +27,7 @@ public final class Main extends JavaPlugin {
         getCommand("blockshuffle").setTabCompleter(new BlockShuffleCompleter(this));
         new MoveListener(this);
         new DamageListener(this);
+        new JoinListener(this);
         saveResource("banned.yml", false);
         bannedFile = new File(getDataFolder(), "banned.yml");
         banned = YamlConfiguration.loadConfiguration(bannedFile);
@@ -63,7 +66,7 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         if(inGame) {
-            BlockShuffleCommand.reset();
+            reset();
         }
     }
 }
