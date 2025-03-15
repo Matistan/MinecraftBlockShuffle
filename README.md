@@ -81,7 +81,7 @@ Use the command `/blockshuffle rules` or edit the `plugins/MinecraftBlockShuffle
 | sameBlockForEveryone | Set to true to make it so that every player has the same block to stand on.                                     | boolean | false; true for less RNG                                                |
 | pvpEnabled           | Set to true to enable PvP during the match.                                                                     | boolean | false                                                                   |
 | scoreboard           | Set to true to show scoreboard with the timer.                                                                  | boolean | true                                                                    |
-| usePermissions       | Set to true to require users to have permission to use certain commands.                                        | boolean | false; true if you don't trust the people you're playing with           |
+| usePermissions       | Set to true to require users to have permission to use certain commands.                                        | boolean | true; false if you trust the people you're playing with                 |
 
 ### Game Mode Options
 
